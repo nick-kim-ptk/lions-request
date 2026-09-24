@@ -1,5 +1,5 @@
-<title>라이온즈 앱 요청보드</title>
-<meta name="description" content="삼성라이온즈 신규 앱 구축 · PTK·삼성라이온즈 요청사항 관리">
+<title>삼성라이온즈 앱 제작 요청 및 협의사항</title>
+<meta name="description" content="관련 담당자가 요청사항과 답변을 공유하고, 처리 상태를 통해 진행 상황을 함께 관리합니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
@@ -218,6 +218,10 @@ h3 .n{font-family:var(--mono);color:var(--muted);font-weight:500}
 .msg-head b{font-weight:600}
 .role{font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--sunken);color:var(--muted)}
 .role.client{background:var(--accent-soft);color:var(--accent-text)}
+.role.ticketlink{background:var(--s-progress-bg);color:var(--s-progress)}
+.av.ticketlink{background:var(--s-progress);color:var(--on-accent)}
+.msg.ticketlink .bubble{background:var(--s-progress-bg)}
+.by.ticketlink{color:var(--s-progress)}
 .msg-head time{color:var(--muted);font-size:12px}
 .msg .bubble{margin-top:4px;padding:10px 12px;background:var(--surface-2);border-radius:4px 10px 10px 10px;white-space:pre-wrap;overflow-wrap:anywhere}
 .msg.client .bubble{background:var(--accent-soft)}
@@ -276,7 +280,7 @@ details.log time{color:var(--muted);font-family:var(--mono);font-size:12px;min-w
 .prio-seg button{padding:6px 16px}
 
 .role-seg{display:flex;width:100%;border-radius:8px;height:38px}
-.role-seg button{flex:1;border-radius:6px}
+.role-seg button{flex:1;border-radius:6px;padding-inline:6px;white-space:nowrap}
 .who{cursor:pointer;height:38px;padding:0 12px}
 .who:hover{border-color:var(--line-strong)}
 .who b{font-weight:600;color:var(--text)}
@@ -332,7 +336,7 @@ const STATUSES = [
 const STATUS_COLOR = {requested:"var(--s-requested)",reviewing:"var(--s-reviewing)",in_progress:"var(--s-progress)",done:"var(--s-done)",hold:"var(--s-hold)"};
 const PRIORITIES = [{id:"normal",label:"보통"},{id:"high",label:"높음"},{id:"urgent",label:"긴급"}];
 const PRIO_RANK = {urgent:0,high:1,normal:2};
-const ROLES = {agency:"PTK", client:"삼성라이온즈"};
+const ROLES = {agency:"PTK", client:"삼성라이온즈", ticketlink:"티켓링크"};
 const TARGETS = [{id:"app",label:"앱"},{id:"admin",label:"어드민"}];
 const targetLabel = id => (TARGETS.find(t=>t.id===id)||TARGETS[0]).label;
 
@@ -568,7 +572,7 @@ function loadScript(src){ return new Promise((res,rej)=>{ const s=document.creat
 
 /* ---------- 작성자 (로그인 없이 이름·소속만) ---------- */
 const ME_KEY = "lions-req-me";
-function roleBadge(role){ return `<span class="role ${role==="client"?"client":""}">${ROLES[role]||""}</span>`; }
+function roleBadge(role){ return `<span class="role ${esc(role||"")}">${ROLES[role]||""}</span>`; }
 function whoHTML(){
   return S.me ? `<span class="who-lb">작성자</span><b>${esc(S.me.name)}</b>${roleBadge(S.me.role)}`
               : `<span class="who-lb">작성자</span><b>이름 입력</b>`;
@@ -621,8 +625,8 @@ function renderShell(){
     <header class="top">
       <div>
         <div class="eyebrow"><span class="dot"></span>Samsung Lions 신규 앱 구축</div>
-        <h1>요청사항 보드</h1>
-        <p class="lede">PTK와 삼성라이온즈가 서로 요청을 남기고, 답변과 처리 상태로 관리합니다.</p>
+        <h1>삼성라이온즈 앱 제작 요청 및 협의사항</h1>
+        <p class="lede">관련 담당자가 요청사항과 답변을 공유하고, 처리 상태를 통해 진행 상황을 함께 관리합니다.</p>
       </div>
       <div class="top-actions">
         <button class="who" id="whoBtn" type="button" title="작성자 이름·소속 변경">${whoHTML()}</button>
@@ -636,7 +640,7 @@ function renderShell(){
       <label class="sr" for="tgtSel">구분</label>
       <select class="field" id="tgtSel"><option value="all">전체 구분</option>${TARGETS.map(t=>`<option value="${t.id}">${t.label}</option>`).join("")}</select>
       <label class="sr" for="whoSel">작성 소속</label>
-      <select class="field" id="whoSel"><option value="all">전체 소속</option><option value="agency">PTK 작성</option><option value="client">삼성라이온즈 작성</option></select>
+      <select class="field" id="whoSel"><option value="all">전체 소속</option>${Object.entries(ROLES).map(([k,v])=>`<option value="${k}">${v} 작성</option>`).join("")}</select>
       <label class="sr" for="catSel">카테고리</label>
       <select class="field" id="catSel"><option value="all">전체 카테고리</option>${S.cats.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select>
       <label class="sr" for="sortSel">정렬</label>
@@ -708,7 +712,7 @@ function renderList(){
           <span class="sub">
             <span class="tgt ${r.target==="admin"?"admin":""}">${targetLabel(r.target)}</span>
             <span class="cat">${ic(c.icon)}${esc(c.name)}</span>
-            <span class="by ${r.author_role==="client"?"client":""}">${esc(r.author_name||"")} · ${ROLES[r.author_role]||""}</span>
+            <span class="by ${esc(r.author_role||"")}">${esc(r.author_name||"")} · ${ROLES[r.author_role]||""}</span>
             ${r.screen_ref?`<span>${ic("screen")}${esc(r.screen_ref)}</span>`:""}
             ${r.reply_count?`<span>${ic("chat")}답변 ${r.reply_count}</span>`:""}
             ${r.file_count?`<span>${ic("clip")}첨부 ${r.file_count}</span>`:""}
@@ -752,7 +756,7 @@ function filesHTML(list){
     const inner = `<span class="fn"><span title="${esc(a.file_name)}">${esc(a.file_name)}</span><small>${fmtSize(a.size)}</small></span>`;
     if(img) return `<div class="file"><button class="thumb" type="button" data-img="${esc(a.url)}" aria-label="${esc(a.file_name)} 크게 보기"><img src="${esc(a.url)}" alt=""></button>${inner}</div>`;
     const thumb = `<span class="thumb">${ic("file")}</span>`;
-    return a.url ? `<a class="file" href="${esc(a.url)}" target="_blank" rel="noopener">${thumb}${inner}</a>` : `<div class="file" title="데모에서는 이미지만 미리보기로 저장됩니다">${thumb}${inner}</div>`;
+    return a.url && /^(https?:|data:image\/)/i.test(a.url) ? `<a class="file" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${thumb}${inner}</a>` : `<div class="file" title="데모에서는 이미지만 미리보기로 저장됩니다">${thumb}${inner}</div>`;
   }).join("")}</div>`;
 }
 function chipsHTML(files, key){
@@ -786,7 +790,7 @@ async function openDetail(id, quiet){
         <div><dt>회신 기한</dt><dd style="${late?"color:var(--danger)":""}">${r.due_date?fmtDate(r.due_date)+(late?" · 지남":""):"없음"}</dd></div>
         <div><dt>구분</dt><dd>${targetLabel(r.target)}</dd></div>
         <div><dt>관련 화면</dt><dd>${esc(r.screen_ref)||"—"}</dd></div>
-        ${r.ref_url?`<div class="wide"><dt>관련 URL</dt><dd><a href="${esc(r.ref_url)}" target="_blank" rel="noopener">${esc(r.ref_url)}</a></dd></div>`:""}
+        ${r.ref_url?`<div class="wide"><dt>관련 URL</dt><dd>${/^https?:\/\//i.test(r.ref_url)?`<a href="${esc(r.ref_url)}" target="_blank" rel="noopener noreferrer">${esc(r.ref_url)}</a>`:esc(r.ref_url)}</dd></div>`:""}
       </dl>
       <div class="body-text">${esc(r.body)}</div>
       ${r.attachments.length?`<div class="section"><h3>${ic("clip")}첨부 <span class="n">${r.attachments.length}</span></h3>${filesHTML(r.attachments)}</div>`:""}
@@ -802,10 +806,10 @@ async function openDetail(id, quiet){
           ${events.length ? events.map(ev=> ev.kind==="log"
             ? `<div class="sys">${esc(ev.x.changed_by||"")}님이 상태를 ‘${statusLabel(ev.x.to_status)}’(으)로 변경 · ${ago(ev.t)}</div>`
             : (()=>{ const x=ev.x; const role=x.author_role; return `
-              <div class="msg ${role==="client"?"client":""}">
-                <span class="av ${role==="client"?"client":""}">${esc((x.author_name||"?").slice(0,1))}</span>
+              <div class="msg ${esc(role||"")}">
+                <span class="av ${esc(role||"")}">${esc((x.author_name||"?").slice(0,1))}</span>
                 <div>
-                  <div class="msg-head"><b>${esc(x.author_name)}</b><span class="role ${role==="client"?"client":""}">${ROLES[role]||""}</span><time datetime="${x.created_at}">${fmtDateTime(x.created_at)}</time></div>
+                  <div class="msg-head"><b>${esc(x.author_name)}</b>${roleBadge(role)}<time datetime="${x.created_at}">${fmtDateTime(x.created_at)}</time></div>
                   ${x.body?`<div class="bubble">${esc(x.body)}</div>`:""}
                   ${filesHTML(x.attachments)}
                 </div>
@@ -815,7 +819,7 @@ async function openDetail(id, quiet){
 
         <div class="composer" id="replyBox">
           <label class="sr" for="replyText">답변 입력</label>
-          <textarea id="replyText" placeholder="답변이나 추가 내용을 입력하세요 · 이미지는 붙여넣기도 됩니다"></textarea>
+          <textarea id="replyText" maxlength="5000" placeholder="답변이나 추가 내용을 입력하세요 · 이미지는 붙여넣기도 됩니다"></textarea>
           <div class="chips" id="replyChips" style="padding:0 12px"></div>
           <div class="bar">
             <button class="btn ghost sm who-sm" type="button" id="replyWho" title="작성자 변경">${replyWhoHTML()}</button>
@@ -939,7 +943,7 @@ function showForm(catId, draft={}){
       </div>
       <div>
         <label class="lb" for="fBody">내용<em>*</em></label>
-        <textarea class="field" id="fBody" placeholder="${esc(c.hint||"요청 내용을 적어주세요.")}">${esc(draft.body||"")}</textarea>
+        <textarea class="field" id="fBody" maxlength="5000" placeholder="${esc(c.hint||"요청 내용을 적어주세요.")}">${esc(draft.body||"")}</textarea>
         <span class="err" id="eBody" hidden>내용을 입력해주세요.</span>
       </div>
       <div class="two">
