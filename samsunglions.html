@@ -1,0 +1,1102 @@
+<title>삼성라이온즈 앱 제작 요청 및 협의사항</title>
+<meta name="description" content="관련 담당자가 요청사항과 답변을 공유하고, 처리 상태를 통해 진행 상황을 함께 관리합니다.">
+<style>
+:root{
+  --bg:#F2F4F8; --surface:#FFFFFF; --surface-2:#F6F8FB; --sunken:#EBEFF5;
+  --line:#DDE3EC; --line-strong:#C7D0DD;
+  --text:#101828; --text-2:#3B4658; --muted:#6A7589;
+  --accent:#0A4DA2; --accent-hover:#083F86; --accent-soft:#E4EDF9; --accent-text:#0A4DA2; --on-accent:#FFFFFF;
+  --danger:#C4302B; --danger-soft:#FCE9E8;
+  --s-requested:#4D5A6E; --s-requested-bg:#ECEFF4;
+  --s-reviewing:#1B62D0; --s-reviewing-bg:#E3EDFD;
+  --s-progress:#A55800; --s-progress-bg:#FCEFDD;
+  --s-done:#157347; --s-done-bg:#E1F3E9;
+  --s-hold:#6E6488; --s-hold-bg:#EFECF5;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px rgba(16,24,40,.08);
+  --shadow-panel:-12px 0 40px rgba(16,24,40,.16);
+  --scrim:rgba(16,24,40,.38);
+  --row-client:#F3F7FD; --row-client-hover:#EAF1FB;
+  --r:10px;
+  --font:"Pretendard","Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;
+  --mono:Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0D121B; --surface:#141B27; --surface-2:#18202E; --sunken:#1D2636;
+    --line:#263145; --line-strong:#34415A;
+    --text:#E7ECF4; --text-2:#C1CAD8; --muted:#8E9AAF;
+    --accent:#3D84E6; --accent-hover:#5696EC; --accent-soft:#18294A; --accent-text:#7FB0F4; --on-accent:#FFFFFF;
+    --danger:#F0706A; --danger-soft:#3A1C1E;
+    --s-requested:#B3BDCC; --s-requested-bg:#232C3B;
+    --s-reviewing:#7FB0F4; --s-reviewing-bg:#172A48;
+    --s-progress:#F2B064; --s-progress-bg:#3A2A14;
+    --s-done:#6FD3A0; --s-done-bg:#15352A;
+    --s-hold:#B7AED0; --s-hold-bg:#2A2638;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+    --shadow-panel:-12px 0 40px rgba(0,0,0,.45);
+    --scrim:rgba(0,0,0,.55);
+    --row-client:#15203A; --row-client-hover:#1A2745;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0D121B; --surface:#141B27; --surface-2:#18202E; --sunken:#1D2636;
+  --line:#263145; --line-strong:#34415A;
+  --text:#E7ECF4; --text-2:#C1CAD8; --muted:#8E9AAF;
+  --accent:#3D84E6; --accent-hover:#5696EC; --accent-soft:#18294A; --accent-text:#7FB0F4; --on-accent:#FFFFFF;
+  --danger:#F0706A; --danger-soft:#3A1C1E;
+  --s-requested:#B3BDCC; --s-requested-bg:#232C3B;
+  --s-reviewing:#7FB0F4; --s-reviewing-bg:#172A48;
+  --s-progress:#F2B064; --s-progress-bg:#3A2A14;
+  --s-done:#6FD3A0; --s-done-bg:#15352A;
+  --s-hold:#B7AED0; --s-hold-bg:#2A2638;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  --shadow-panel:-12px 0 40px rgba(0,0,0,.45);
+  --scrim:rgba(0,0,0,.55);
+    --row-client:#15203A; --row-client-hover:#1A2745;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:0 64px}
+@media (max-width:600px){.wrap{padding-inline:16px}}
+
+/* header */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:28px 20px}
+.eyebrow{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--accent-text);text-transform:uppercase}
+.eyebrow .dot{width:8px;height:8px;border-radius:2px;background:var(--accent)}
+h1{font-size:26px;line-height:1.25;margin:6px 0 2px;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.lede{margin:0;color:var(--muted)}
+.top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 14px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface);font-weight:600;font-size:14px;white-space:nowrap;transition:background .15s,border-color .15s}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--text-2)}
+.btn.ghost:hover{background:var(--sunken)}
+.btn.sm{height:32px;padding:0 10px;font-size:13px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.icon-btn{width:36px;height:36px;display:inline-grid;place-items:center;border-radius:8px;border:0;background:transparent;color:var(--text-2)}
+.icon-btn:hover{background:var(--sunken)}
+
+.who{display:flex;align-items:center;gap:8px;padding:4px 4px 4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:13px;color:var(--text-2)}
+.seg{display:inline-flex;background:var(--sunken);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--text);box-shadow:0 1px 2px rgba(16,24,40,.12)}
+
+.notice{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-radius:var(--r);background:var(--accent-soft);color:var(--text-2);font-size:13px;margin-bottom:18px}
+.notice b{color:var(--accent-text)}
+
+/* status tabs */
+.viewbar{margin-bottom:14px}
+.viewbar .seg button{padding:7px 16px;font-size:14px}
+.viewbar .seg .n{font-family:var(--mono);font-size:12px;margin-left:6px;color:var(--muted)}
+.fixed-role{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding:8px 10px;background:var(--surface-2);border-radius:8px}
+#pageSeg button{font-size:12.5px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin-bottom:14px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:13px;color:var(--text-2)}
+.tab .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.tab .sw{width:8px;height:8px;border-radius:50%}
+.tab[aria-pressed="true"]{border-color:var(--text);background:var(--text);color:var(--bg)}
+.tab[aria-pressed="true"] .n{color:inherit;opacity:.75}
+
+/* toolbar */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.search{flex:2 1 220px;position:relative}
+.toolbar select.field{flex:1 1 120px;min-width:0}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.field,.search input,select.field{height:38px;width:100%;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:0 12px}
+.search input{padding-left:36px}
+select.field{width:auto;padding-right:30px}
+.field:focus,.search input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+/* list */
+.list{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.list-head,.row{display:grid;grid-template-columns:92px minmax(0,1fr) 110px 96px;gap:16px;align-items:center;padding:0 18px}
+.list-head{height:38px;font-size:12px;color:var(--muted);font-weight:600;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.row{width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;padding-block:14px;transition:background .12s}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--surface-2)}
+.row.client{background:var(--row-client)}
+.row.client:hover{background:var(--row-client-hover)}
+.row.active,.row.client.active{background:var(--accent-soft)}
+.row .code{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.row .main{min-width:0;display:flex;flex-direction:column;gap:4px}
+.row .t{font-weight:600;font-size:15px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .sub{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.row .sub span{display:inline-flex;align-items:center;gap:4px}
+.row .sub svg.i{width:14px;height:14px}
+.due{font-size:13px;color:var(--text-2);font-variant-numeric:tabular-nums}
+.due.late{color:var(--danger);font-weight:600}
+.due small{display:block;font-size:11.5px;color:var(--muted);font-weight:400}
+.due.late small{color:var(--danger)}
+.more{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;border:0;border-top:1px solid var(--line);background:var(--surface-2);font-weight:600;color:var(--text-2)}
+.more:hover{background:var(--sunken);color:var(--text)}
+.more .mono{font-size:12px;color:var(--muted);font-weight:500}
+.empty{padding:48px 20px;text-align:center;color:var(--muted)}
+
+.cat{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--text-2)}
+.cat svg.i{width:14px;height:14px;color:var(--accent-text)}
+.prio{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:5px;font-size:11.5px;font-weight:700;letter-spacing:.02em}
+.prio.urgent{background:var(--danger-soft);color:var(--danger)}
+.prio.high{background:var(--s-progress-bg);color:var(--s-progress)}
+
+.pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap;justify-self:start}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.st-requested{color:var(--s-requested);background:var(--s-requested-bg)}
+.st-reviewing{color:var(--s-reviewing);background:var(--s-reviewing-bg)}
+.st-in_progress{color:var(--s-progress);background:var(--s-progress-bg)}
+.st-done{color:var(--s-done);background:var(--s-done-bg)}
+.st-hold{color:var(--s-hold);background:var(--s-hold-bg)}
+
+@media (max-width:720px){
+  .list-head{display:none}
+  .row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"code status" "main main" "due due";gap:6px 12px}
+  .row .code{grid-area:code}.row .main{grid-area:main}.row .due{grid-area:due;display:flex;gap:6px}.row .pill{grid-area:status;justify-self:end}
+  .row .t{white-space:normal}
+  .due small{display:inline}
+}
+
+/* panel */
+.scrim{position:fixed;inset:0;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.scrim.on{opacity:1;pointer-events:auto}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(640px,100%);background:var(--surface);box-shadow:var(--shadow-panel);z-index:21;display:flex;flex-direction:column;transform:translateX(102%);transition:transform .24s cubic-bezier(.2,.8,.2,1)}
+.panel.on{transform:none}
+.panel-head{display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px 20px;border-bottom:1px solid var(--line);min-height:60px}
+.panel-head .grow{flex:1;min-width:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.panel-body{flex:1;overflow-y:auto;padding:22px 24px 32px}
+.panel-foot{border-top:1px solid var(--line);padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:center;justify-content:flex-end;background:var(--surface)}
+.panel-foot .grow{flex:1}
+.foot-who{border:0;background:transparent;display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:6px 8px;border-radius:6px;min-width:0;max-width:55%;overflow:hidden;white-space:nowrap}
+.foot-who:hover{background:var(--sunken)}
+.tgt{font-size:11.5px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--sunken);color:var(--text-2)}
+.tgt.admin{background:var(--s-hold-bg);color:var(--s-hold)}
+.meta .wide{grid-column:1/-1}
+.meta a{color:var(--accent-text);font-weight:500;overflow-wrap:anywhere}
+@media (max-width:600px){.panel-body{padding:18px 16px 28px}}
+@media (prefers-reduced-motion:reduce){.panel,.scrim{transition:none}}
+
+h2{font-size:21px;line-height:1.35;margin:0 0 14px;letter-spacing:-.015em;text-wrap:balance}
+h3{font-size:13px;font-weight:700;margin:0 0 10px;color:var(--text-2);display:flex;align-items:center;gap:6px}
+h3 .n{font-family:var(--mono);color:var(--muted);font-weight:500}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px 16px;margin:0 0 20px;padding:14px 16px;background:var(--surface-2);border-radius:var(--r)}
+.meta div{min-width:0}
+.meta dt{font-size:11.5px;color:var(--muted);margin-bottom:2px}
+.meta dd{margin:0;font-weight:600;font-size:13.5px;overflow-wrap:anywhere}
+.section{margin-top:24px}
+.body-text{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text);font-size:14.5px;line-height:1.7}
+
+.status-ctl{display:flex;flex-wrap:wrap;gap:6px}
+.status-ctl button{border:1px solid var(--line);background:var(--surface);border-radius:999px;height:32px;padding:0 12px;font-size:13px;font-weight:600;color:var(--muted)}
+.status-ctl button:hover{border-color:var(--line-strong);color:var(--text)}
+.status-ctl button[aria-pressed="true"]{border-color:transparent}
+.status-ctl button.st-requested{color:var(--s-requested);background:var(--s-requested-bg)}
+.status-ctl button.st-reviewing{color:var(--s-reviewing);background:var(--s-reviewing-bg)}
+.status-ctl button.st-in_progress{color:var(--s-progress);background:var(--s-progress-bg)}
+.status-ctl button.st-done{color:var(--s-done);background:var(--s-done-bg)}
+.status-ctl button.st-hold{color:var(--s-hold);background:var(--s-hold-bg)}
+
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+.file{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column;text-decoration:none;color:inherit;min-width:0}
+.file .thumb{aspect-ratio:4/3;background:var(--sunken);display:grid;place-items:center;color:var(--muted);overflow:hidden;border:0;padding:0;width:100%}
+.file .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.file .fn{padding:7px 9px;font-size:12px;display:flex;flex-direction:column;min-width:0}
+.file .fn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file .fn small{color:var(--muted);font-family:var(--mono);font-size:11px}
+
+.thread{display:flex;flex-direction:column;gap:14px}
+.msg{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:12.5px;font-weight:700;background:var(--sunken);color:var(--text-2)}
+.av.client{background:var(--accent);color:var(--on-accent)}
+.msg-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
+.msg-head b{font-weight:600}
+.role{font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--sunken);color:var(--muted)}
+.role.client{background:var(--accent-soft);color:var(--accent-text)}
+.role.ticketlink{background:var(--s-progress-bg);color:var(--s-progress)}
+.av.ticketlink{background:var(--s-progress);color:var(--on-accent)}
+.msg.ticketlink .bubble{background:var(--s-progress-bg)}
+.by.ticketlink{color:var(--s-progress)}
+.msg-head time{color:var(--muted);font-size:12px}
+.msg .bubble{margin-top:4px;padding:10px 12px;background:var(--surface-2);border-radius:4px 10px 10px 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.client .bubble{background:var(--accent-soft)}
+.msg .files{margin-top:8px}
+.edited{font-size:11.5px;color:var(--muted);font-weight:500;margin-left:2px}
+.linkish.mini{font-size:12px;padding:0 2px;margin-left:auto}
+.bubble.editing{padding:8px;background:var(--surface)!important;border:1px solid var(--accent)}
+.bubble.editing textarea{width:100%;min-height:90px;border:0;outline:none;resize:vertical;background:transparent;line-height:1.6}
+.edit-bar{display:flex;justify-content:flex-end;gap:6px;margin-top:4px}
+.sys{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px;padding-left:42px}
+.sys::before{content:"";width:14px;height:1px;background:var(--line-strong)}
+
+.composer{margin-top:18px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.composer:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.composer textarea{display:block;width:100%;border:0;background:transparent;resize:vertical;min-height:84px;padding:12px 14px;outline:none;box-shadow:none}
+.composer .bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;border-top:1px solid var(--line)}
+.composer .bar .grow{flex:1}
+.composer select{height:32px;border:1px solid var(--line);border-radius:7px;background:var(--surface);padding:0 8px;font-size:13px}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;height:28px;padding:0 4px 0 10px;border-radius:6px;background:var(--sunken);font-size:12.5px}
+.chip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.chip small{color:var(--muted);font-family:var(--mono);font-size:11px}
+.chip button{border:0;background:transparent;width:22px;height:22px;border-radius:4px;display:grid;place-items:center;color:var(--muted)}
+.chip button:hover{background:var(--line)}
+
+details.log summary{cursor:pointer;font-size:13px;color:var(--muted);list-style:none;display:inline-flex;align-items:center;gap:6px}
+details.log summary::-webkit-details-marker{display:none}
+details.log ol{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--text-2)}
+details.log li{display:flex;gap:10px;flex-wrap:wrap}
+details.log time{color:var(--muted);font-family:var(--mono);font-size:12px;min-width:92px}
+
+/* composer: category step */
+.step-label{font-size:12px;font-weight:700;color:var(--accent-text);letter-spacing:.04em;margin-bottom:4px}
+.cats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.cat-tile{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,background .15s}
+.cat-tile:hover{border-color:var(--accent);background:var(--accent-soft)}
+.cat-tile .ic{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent-text)}
+.cat-tile:hover .ic{background:var(--accent);color:var(--on-accent)}
+.cat-tile b{font-size:15px}
+.cat-tile .txt{display:flex;flex-direction:column;gap:2px}
+.cat-tile .txt span{font-size:12.5px;color:var(--muted);line-height:1.45}
+@media (max-width:420px){.cats{grid-template-columns:1fr}.cat-tile{flex-direction:row;align-items:center}.cat-tile .txt{display:flex;flex-direction:column}}
+
+.form{display:flex;flex-direction:column;gap:18px}
+.form .lb{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-2)}
+.form .lb em{font-style:normal;color:var(--danger);margin-left:2px}
+.form .lb small{font-weight:400;color:var(--muted);margin-left:6px}
+.form textarea.field{height:auto;min-height:150px;padding:10px 12px;line-height:1.6;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:520px){.two{grid-template-columns:1fr}}
+.err{display:block;margin-top:5px;font-size:12.5px;color:var(--danger)}
+.picked{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);background:var(--accent-soft)}
+.picked .cat{font-size:14px}
+.picked .grow{flex:1}
+.linkish{border:0;background:none;color:var(--accent-text);font-weight:600;font-size:13px;padding:4px}
+.drop{border:1.5px dashed var(--line-strong);border-radius:var(--r);padding:18px;text-align:center;color:var(--muted);font-size:13px;background:var(--surface-2);cursor:pointer;transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--text-2)}
+.drop b{color:var(--accent-text)}
+.drop + .chips{margin-top:10px}
+.prio-seg button{padding:6px 16px}
+
+.role-seg{display:flex;width:100%;border-radius:8px;height:38px}
+.role-seg button{flex:1;border-radius:6px;padding-inline:6px;white-space:nowrap}
+.who{cursor:pointer;height:38px;padding:0 12px}
+.who:hover{border-color:var(--line-strong)}
+.who b{font-weight:600;color:var(--text)}
+.who-lb{font-size:12px;color:var(--muted)}
+.who-sm{max-width:180px;overflow:hidden}
+.by{font-size:12.5px;color:var(--muted)}
+.to{font-size:12.5px;color:var(--muted);margin-left:-6px}
+.to b{font-weight:600;color:var(--text-2)}
+.to b.client{color:var(--accent-text)}
+.to b.ticketlink{color:var(--s-progress)}
+.by.client{color:var(--accent-text)}
+.idbox{position:fixed;inset:0;background:var(--scrim);display:grid;place-items:center;z-index:35;padding:16px}
+.idcard{width:min(380px,100%);background:var(--surface);border-radius:14px;padding:24px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.idcard .lb{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-2)}
+/* login */
+.login{max-width:400px;margin:12vh auto 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px;box-shadow:var(--shadow)}
+.login h1{font-size:22px}
+.login form{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+
+/* toast + lightbox */
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:13.5px;font-weight:500;opacity:0;pointer-events:none;transition:.2s;z-index:40;max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.lightbox{position:fixed;inset:0;background:rgba(8,12,20,.86);display:grid;place-items:center;z-index:30;padding:24px}
+.lightbox img{max-height:86vh;max-width:100%;border-radius:6px}
+.lightbox .icon-btn{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:14px;color:#fff}
+.lightbox .icon-btn:hover{background:rgba(255,255,255,.12)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+
+<div id="app" class="wrap"></div>
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel" aria-hidden="true" role="dialog" aria-modal="true"></aside>
+<div class="toast" id="toast" role="status"></div>
+<input type="file" id="filepick" multiple hidden>
+
+<script>
+/* =========================================================
+   설정 — Supabase 값을 채우면 실데이터 모드로 전환됩니다.
+   비워두면 예시 데이터로 동작하는 데모 모드입니다.
+   ※ anon(publishable) 키만 넣으세요. service_role 키는 절대 넣지 마세요.
+   ========================================================= */
+const CONFIG = {
+  SUPABASE_URL: "https://xwzcjxtoyxiduxelpnpz.supabase.co",   // .co 까지만
+  SUPABASE_ANON_KEY: "sb_publishable_4o952SwIBok8yywMJh4avw_L7fXbGgW",   // publishable(공개용) 키
+  PAGE_ROLE: "client",       // 이 주소의 소속: agency=PTK, client=삼성라이온즈, ticketlink=티켓링크
+  BUCKET: "request-files",
+  MAX_FILE_MB: 5
+};
+
+/* ---------- 기본 정의 ---------- */
+const STATUSES = [
+  {id:"requested",   label:"요청"},
+  {id:"reviewing",   label:"확인중"},
+  {id:"in_progress", label:"처리중"},
+  {id:"done",        label:"완료"},
+  {id:"hold",        label:"보류"}
+];
+const STATUS_COLOR = {requested:"var(--s-requested)",reviewing:"var(--s-reviewing)",in_progress:"var(--s-progress)",done:"var(--s-done)",hold:"var(--s-hold)"};
+const PRIORITIES = [{id:"normal",label:"보통"},{id:"high",label:"높음"},{id:"urgent",label:"긴급"}];
+const PRIO_RANK = {urgent:0,high:1,normal:2};
+const ROLES = {agency:"PTK", client:"삼성라이온즈", ticketlink:"티켓링크"};
+let PAGE_ROLE = CONFIG.PAGE_ROLE;
+const VIEWS = [{id:"in",label:"받은 요청"},{id:"out",label:"보낸 요청"},{id:"all",label:"전체"}];
+function inView(r, v){ return v==="in" ? r.assignee_role===PAGE_ROLE : v==="out" ? r.author_role===PAGE_ROLE : (r.assignee_role===PAGE_ROLE || r.author_role===PAGE_ROLE); }
+const TARGETS = [{id:"app",label:"앱"},{id:"admin",label:"어드민"}];
+const targetLabel = id => (TARGETS.find(t=>t.id===id)||TARGETS[0]).label;
+
+const DEFAULT_CATEGORIES = [
+  {id:"design",   name:"디자인·UI",   icon:"design",   description:"화면 시안, 이미지, 아이콘, 가이드 수정", hint:"수정할 화면과 원하는 방향을 적어주세요.\n예) HOME-01 상단 배너 영역 높이를 줄이고 경기 일정을 먼저 보여주고 싶습니다."},
+  {id:"feature",  name:"기능·개발",   icon:"feature",  description:"기능 정의, 동작 방식, 외부 연동 확인", hint:"확인이 필요한 기능과 선택지를 적어주세요.\n예) 티켓 메뉴를 웹뷰로 열지, 외부 브라우저로 열지 결정 부탁드립니다."},
+  {id:"content",  name:"콘텐츠·자료", icon:"content",  description:"원고, 사진 원본, 선수·경기 데이터 전달", hint:"필요한 자료, 형식, 사이즈를 적어주세요.\n예) 2026 시즌 선수 프로필 사진 원본 (JPG, 1000px 이상)"},
+  {id:"account",  name:"계정·인프라", icon:"account",  description:"스토어 계정, 서버, 도메인, API 키", hint:"필요한 계정·권한과 초대받을 이메일을 적어주세요."},
+  {id:"policy",   name:"정책·약관",   icon:"policy",   description:"개인정보, 이용약관, 멤버십·티켓 정책", hint:"확정이 필요한 정책 항목과 적용 화면을 적어주세요."},
+  {id:"schedule", name:"일정·검수",   icon:"schedule", description:"일정 협의, 검수·오픈 일정", hint:"협의할 일정과 가능한 후보 날짜를 적어주세요."},
+  {id:"admin",    name:"운영·어드민", icon:"admin",    description:"어드민 권한, 운영 담당, 운영 프로세스", hint:"운영 방식이나 권한 범위에서 결정이 필요한 부분을 적어주세요."},
+  {id:"etc",      name:"기타",        icon:"etc",      description:"위 분류에 없는 요청", hint:"요청 내용을 자유롭게 적어주세요."}
+];
+
+const ICONS = {
+  design:'<path d="M4 20l4-1 11-11-3-3L5 16l-1 4z"/><path d="M14 6l3 3"/>',
+  feature:'<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5.5l-3 13"/>',
+  content:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/>',
+  account:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/>',
+  policy:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>',
+  schedule:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  admin:'<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
+  etc:'<circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  clip:'<path d="M20 11.5l-8.2 8.2a5 5 0 01-7-7L13 4.5a3.3 3.3 0 014.7 4.7l-8.2 8.2a1.7 1.7 0 01-2.4-2.4l7.6-7.6"/>',
+  chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+  file:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/>',
+  screen:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  back:'<path d="M15 6l-6 6 6 6"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/>',
+  send:'<path d="M4 12l16-8-6 16-2-7z"/>',
+  history:'<path d="M3 12a9 9 0 103-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>'
+};
+const ic = (n, cls="") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]||ICONS.etc}</svg>`;
+
+/* ---------- 유틸 ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const code = id => "REQ-" + String(id).padStart(3,"0");
+const WD = ["일","월","화","수","목","금","토"];
+function fmtDate(d){ if(!d) return ""; const x = new Date(d.length===10 ? d+"T00:00:00" : d); return `${x.getMonth()+1}.${x.getDate()} (${WD[x.getDay()]})`; }
+function fmtDateTime(d){ const x=new Date(d); return `${x.getMonth()+1}.${x.getDate()} ${String(x.getHours()).padStart(2,"0")}:${String(x.getMinutes()).padStart(2,"0")}`; }
+function ago(d){
+  const s=(Date.now()-new Date(d))/1000;
+  if(s<60) return "방금"; if(s<3600) return Math.floor(s/60)+"분 전";
+  if(s<86400) return Math.floor(s/3600)+"시간 전"; if(s<86400*7) return Math.floor(s/86400)+"일 전";
+  return fmtDate(d);
+}
+function todayStr(){ const t=new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`; }
+function dayOffset(n){ const t=new Date(); t.setDate(t.getDate()+n); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`; }
+function hoursAgo(h){ return new Date(Date.now()-h*3600e3).toISOString(); }
+function fmtSize(b){ if(b==null) return ""; if(b<1024) return b+"B"; if(b<1048576) return (b/1024).toFixed(0)+"KB"; return (b/1048576).toFixed(1)+"MB"; }
+function isLate(r){ return r.due_date && r.due_date < todayStr() && r.status!=="done" && r.status!=="hold"; }
+function statusLabel(id){ return (STATUSES.find(s=>s.id===id)||{}).label || id; }
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("on"),2400); }
+const ls = {
+  get(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+function readAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+
+/* ---------- 데모 저장소 (예시 데이터, 이 브라우저에만 저장) ---------- */
+function sampleImage(label, a, b){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="480" height="360" fill="url(#g)"/><text x="32" y="316" font-family="sans-serif" font-size="26" font-weight="700" fill="#fff">${label}</text><text x="32" y="60" font-family="sans-serif" font-size="15" fill="#ffffffb0">예시 이미지</text></svg>`;
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+function seedDemo(){
+  const A = {author_name:"김OO PM", author_role:"agency"}, C = {author_name:"이OO 매니저", author_role:"client"};
+  const reqs = [
+    {id:7, category_id:"content", title:"메인 홈 상단 배너용 2026 시즌 키비주얼 원본 요청", body:"HOME-01 메인 상단 롤링 배너에 들어갈 키비주얼 원본(PSD 또는 AI)을 부탁드립니다.\n- 최소 사이즈: 1080×1350\n- 선수 컷 사용 가능 범위도 함께 알려주세요.", screen_ref:"HOME-01", assignee_role:"client", priority:"high", due_date:dayOffset(2), status:"reviewing", ...A, created_at:hoursAgo(50), updated_at:hoursAgo(5),
+     attachments:[{id:"a1", file_name:"홈_배너_영역_표시.png", mime:"image/svg+xml", size:48211, url:sampleImage("HOME-01 배너 영역","#0A4DA2","#3E7FD6")}],
+     replies:[{id:"r1", body:"구단 홍보팀에 요청해두었습니다. 금요일까지 전달드릴게요.", ...C, created_at:hoursAgo(5), attachments:[]}],
+     logs:[{from_status:"requested", to_status:"reviewing", changed_by:"이OO 매니저", created_at:hoursAgo(5)}]},
+    {id:6, category_id:"feature", title:"티켓 예매 메뉴 외부 예매처 연동 방식 확인", body:"티켓 메뉴에서 외부 예매 페이지로 이동하는 방식을 결정해야 합니다.\n1) 앱 내 웹뷰로 열기\n2) 외부 브라우저로 열기\n\n로그인 연동이 필요한지도 함께 확인 부탁드립니다.", screen_ref:"TICKET-01", ref_url:"https://www.samsunglions.com", assignee_role:"ticketlink", priority:"urgent", due_date:dayOffset(-1), status:"requested", ...A, created_at:hoursAgo(76), updated_at:hoursAgo(76), attachments:[], replies:[], logs:[]},
+    {id:5, category_id:"account", title:"앱스토어·플레이 콘솔 개발자 계정 권한 초대", body:"스토어 등록 준비를 위해 개발자 계정에 아래 이메일로 관리자 초대 부탁드립니다.\n- dev@example.com (개발)\n- pm@example.com (PM)", screen_ref:"", assignee_role:"client", priority:"high", due_date:dayOffset(5), status:"in_progress", ...A, created_at:hoursAgo(120), updated_at:hoursAgo(20), attachments:[],
+     replies:[{id:"r2", body:"플레이 콘솔은 초대 완료했습니다. 애플은 법인 담당자 확인 후 진행하겠습니다.", ...C, created_at:hoursAgo(20), attachments:[]}],
+     logs:[{from_status:"requested", to_status:"in_progress", changed_by:"이OO 매니저", created_at:hoursAgo(20)}]},
+    {id:4, category_id:"schedule", title:"10월 2주차 1차 검수 일정 협의", body:"1차 검수(HOME·GAME·TICKET) 일정 후보 드립니다. PTK 쪽 가능한 날짜 알려주세요.\n- 10/13 (화) 14:00\n- 10/14 (수) 10:00\n- 10/15 (목) 14:00", screen_ref:"", assignee_role:"agency", priority:"normal", due_date:dayOffset(7), status:"reviewing", ...C, created_at:hoursAgo(30), updated_at:hoursAgo(26), attachments:[],
+     replies:[{id:"r3", body:"수요일 오전 가능합니다. 검수용 테스트 빌드는 전날까지 공유드리겠습니다.", ...A, created_at:hoursAgo(26), attachments:[]}],
+     logs:[{from_status:"requested", to_status:"reviewing", changed_by:"김OO PM", created_at:hoursAgo(26)}]},
+    {id:3, category_id:"policy", title:"개인정보 처리방침·이용약관 최종본 전달", body:"MY-08 약관 화면에 게시할 개인정보 처리방침과 이용약관 최종본이 필요합니다. 법무 검토 완료본으로 부탁드립니다.", screen_ref:"MY-08", assignee_role:"client", priority:"normal", due_date:dayOffset(10), status:"requested", ...A, created_at:hoursAgo(10), updated_at:hoursAgo(10), attachments:[], replies:[], logs:[]},
+    {id:2, category_id:"admin", title:"어드민 공지사항 등록 권한 범위 확정", body:"ADMIN-03 공지 관리에서 등록·수정 권한을 누구에게 줄지 확정이 필요합니다. (마케팅팀 전체 / 담당자 2인)", screen_ref:"ADMIN-03", target:"admin", assignee_role:"client", priority:"normal", due_date:dayOffset(3), status:"hold", ...A, created_at:hoursAgo(200), updated_at:hoursAgo(96), attachments:[],
+     replies:[{id:"r4", body:"10월 조직 개편 이후 다시 공유드리겠습니다.", ...C, created_at:hoursAgo(96), attachments:[]}],
+     logs:[{from_status:"requested", to_status:"hold", changed_by:"이OO 매니저", created_at:hoursAgo(96)}]},
+    {id:1, category_id:"design", title:"2차 디자인 시안 피드백 정리 공유", body:"2차 시안 회의 피드백을 정리했습니다. 확인 후 누락된 부분 있으면 말씀 부탁드립니다.", screen_ref:"HOME·GAME 전체", assignee_role:"client", priority:"normal", due_date:dayOffset(-5), status:"done", ...A, created_at:hoursAgo(260), updated_at:hoursAgo(150),
+     attachments:[{id:"a2", file_name:"2차시안_피드백.png", mime:"image/svg+xml", size:120442, url:sampleImage("2차 시안 피드백","#1F2B3E","#0A4DA2")},{id:"a3", file_name:"2차시안_피드백_정리.pdf", mime:"application/pdf", size:842113, url:null}],
+     replies:[{id:"r5", body:"확인했습니다. 경기 결과 카드 색상만 한 번 더 조정 부탁드립니다.", ...C, created_at:hoursAgo(200), attachments:[]},{id:"r6", body:"반영해서 3차 시안에 포함했습니다.", ...A, created_at:hoursAgo(150), attachments:[]}],
+     logs:[{from_status:"requested", to_status:"reviewing", changed_by:"이OO 매니저", created_at:hoursAgo(200)},{from_status:"reviewing", to_status:"done", changed_by:"이OO 매니저", created_at:hoursAgo(150)}]}
+  ];
+  return {seq:7, reqs};
+}
+function DemoStore(){
+  const KEY="lions-req-demo-v4";
+  let db = ls.get(KEY, null) || seedDemo();
+  // 미리보기용: 예시 중 일부를 '내가 쓴 글'로 표시해 수정 버튼을 볼 수 있게 함
+  if(!ls.get("lions-req-keys-demo", null)) ls.set("lions-req-keys-demo", {r:{7:"demo",3:"demo"}, p:{r3:"demo"}});
+  const save = () => ls.set(KEY, db);
+  const find = id => db.reqs.find(r=>r.id===id);
+  async function toAtt(files){
+    const out=[];
+    for(const f of files){
+      let url=null;
+      if(f.type.startsWith("image/") && f.size < 1.5*1048576){ try{ url = await readAsDataURL(f); }catch(e){} }
+      out.push({id:"a"+Math.random().toString(36).slice(2), file_name:f.name, mime:f.type, size:f.size, url});
+    }
+    return out;
+  }
+  function log(r, to, by){ if(r.status===to) return; r.logs.push({from_status:r.status, to_status:to, changed_by:by, created_at:new Date().toISOString()}); r.status=to; }
+  return {
+    mode:"demo",
+    async categories(){ return DEFAULT_CATEGORIES; },
+    async list(){ return db.reqs.map(r=>({...r, reply_count:r.replies.length, file_count:r.attachments.length + r.replies.reduce((n,x)=>n+x.attachments.length,0)})); },
+    async get(id){ return JSON.parse(JSON.stringify(find(id))); },
+    async create(d, files, me, key){
+      const now=new Date().toISOString();
+      const r={id:++db.seq, ...d, status:"requested", author_name:me.name, author_role:me.role, created_at:now, updated_at:now, attachments:await toAtt(files), replies:[], logs:[]};
+      db.reqs.unshift(r); save(); return r;
+    },
+    async reply(id, body, files, status, me, key){
+      const r=find(id); const now=new Date().toISOString(); let rid=null;
+      if(body || files.length){
+        rid="r"+Math.random().toString(36).slice(2);
+        r.replies.push({id:rid, body, author_name:me.name, author_role:me.role, created_at:now, attachments:await toAtt(files)});
+        if((r.assignee_role ? me.role===r.assignee_role : me.role!==r.author_role) && r.status==="requested" && !status) log(r,"reviewing",me.name);
+      }
+      if(status) log(r,status,me.name);
+      r.updated_at=now; save(); return rid;
+    },
+    async updateRequest(id, key, f){ const r=find(id); Object.assign(r, f, {edited_at:new Date().toISOString(), updated_at:new Date().toISOString()}); save(); },
+    async updateReply(id, key, body){ for(const r of db.reqs){ const x=r.replies.find(y=>y.id===id); if(x){ x.body=body; x.edited_at=new Date().toISOString(); r.updated_at=x.edited_at; save(); return; } } },
+    async setStatus(id, status, me){ const r=find(id); log(r,status,me.name); r.updated_at=new Date().toISOString(); save(); },
+    reset(){ db=seedDemo(); ls.del(KEY); }
+  };
+}
+
+/* ---------- Supabase 저장소 ---------- */
+function SupaStore(sb){
+  const B = CONFIG.BUCKET;
+  const must = ({data,error}) => { if(error) throw error; return data; };
+  async function upload(reqId, replyId, files){
+    const rows=[];
+    for(const f of files){
+      // 스토리지 경로에는 한글·공백을 쓰지 않습니다. 원래 파일명은 DB에 따로 저장합니다.
+      const ext=(f.name.includes(".") ? f.name.split(".").pop() : "").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,8);
+      const uid = (crypto.randomUUID ? crypto.randomUUID() : Date.now()+"-"+Math.random().toString(36).slice(2));
+      const path=`${reqId}/${uid}${ext?"."+ext:""}`;
+      must(await sb.storage.from(B).upload(path, f, {contentType:f.type||"application/octet-stream", upsert:false}));
+      rows.push({request_id:reqId, reply_id:replyId, file_name:f.name, file_path:path, mime:f.type||null, size:f.size});
+    }
+    if(rows.length) must(await sb.from("attachments").insert(rows));
+  }
+  return {
+    mode:"live",
+    async categories(){ return must(await sb.from("categories").select("*").eq("active",true).order("sort")); },
+    async list(){
+      // Supabase는 한 번에 최대 1,000건만 돌려주므로 끝까지 나눠서 받습니다.
+      const data=[]; const CH=1000;
+      for(let from=0;;from+=CH){
+        const part = must(await sb.from("requests").select("*, replies(count), attachments(count)").or(`assignee_role.eq.${PAGE_ROLE},author_role.eq.${PAGE_ROLE}`).order("id",{ascending:false}).range(from, from+CH-1));
+        data.push(...part); if(part.length < CH) break;
+      }
+      return data.map(r=>({...r, reply_count:r.replies?.[0]?.count||0, file_count:r.attachments?.[0]?.count||0}));
+    },
+    async get(id){
+      const [req, replies, atts, logs] = await Promise.all([
+        sb.from("requests").select("*").eq("id",id).single().then(must),
+        sb.from("replies").select("*").eq("request_id",id).order("created_at").then(must),
+        sb.from("attachments").select("*").eq("request_id",id).order("created_at").then(must),
+        sb.from("status_logs").select("*").eq("request_id",id).order("created_at").then(must)
+      ]);
+      const urls={};
+      if(atts.length){
+        const signed = must(await sb.storage.from(B).createSignedUrls(atts.map(a=>a.file_path), 3600));
+        signed.forEach(s=>{ if(s.signedUrl) urls[s.path]=s.signedUrl; });
+      }
+      const withUrl = a => ({...a, url:urls[a.file_path]||null});
+      return {...req, attachments:atts.filter(a=>!a.reply_id).map(withUrl),
+        replies:replies.map(r=>({...r, attachments:atts.filter(a=>a.reply_id===r.id).map(withUrl)})), logs};
+    },
+    async create(d, files, me, key){
+      const row = must(await sb.from("requests").insert({...d, author_name:me.name, author_role:me.role, edit_key_hash:key}).select().single());
+      await upload(row.id, null, files);
+      return row;
+    },
+    async reply(id, body, files, status, me, key){
+      let rid=null;
+      if(body || files.length){
+        const r = must(await sb.from("replies").insert({request_id:id, body, author_name:me.name, author_role:me.role, edit_key_hash:key}).select().single());
+        rid=r.id; await upload(id, r.id, files);
+      }
+      if(status) must(await sb.from("requests").update({status, status_changed_by:me.name}).eq("id",id));
+      return rid;
+    },
+    async updateRequest(id, key, f){
+      must(await sb.rpc("edit_request", {p_id:id, p_key:key, p_category_id:f.category_id, p_target:f.target, p_title:f.title, p_body:f.body,
+        p_screen_ref:f.screen_ref||"", p_ref_url:f.ref_url||"", p_due_date:f.due_date||null, p_priority:f.priority, p_assignee_role:f.assignee_role}));
+    },
+    async updateReply(id, key, body){ must(await sb.rpc("edit_reply", {p_id:id, p_key:key, p_body:body})); },
+    async setStatus(id, status, me){ must(await sb.from("requests").update({status, status_changed_by:me.name}).eq("id",id)); }
+  };
+}
+
+/* ---------- 상태 ---------- */
+const S = {
+  store:null, sb:null, me:null, cats:[], reqs:[], openId:null,
+  filter:{view:"in", status:"all", cat:"all", who:"all", tgt:"all", q:"", sort:"updated"},
+  shown:20,
+  draftFiles:[], replyFiles:[]
+};
+const PAGE = 20;
+const resetShown = () => { S.shown = PAGE; };
+const catOf = id => S.cats.find(c=>c.id===id) || {id, name:id||"기타", icon:"etc"};
+
+/* ---------- 부팅 ---------- */
+async function boot(){
+  if(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY){
+    try{
+      await loadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js");
+      const baseUrl = CONFIG.SUPABASE_URL.trim().replace(/\/(rest|auth|storage)\/v1.*$/,"").replace(/\/+$/,"");
+      S.sb = window.supabase.createClient(baseUrl, CONFIG.SUPABASE_ANON_KEY.trim());
+      S.store = SupaStore(S.sb);
+      S.sb.channel("board")
+        .on("postgres_changes",{event:"*",schema:"public",table:"requests"},()=>refresh(true))
+        .on("postgres_changes",{event:"*",schema:"public",table:"replies"},()=>refresh(true))
+        .subscribe();
+    }catch(e){
+      console.error(e);
+      $("#app").innerHTML = `<div class="login"><h1>연결하지 못했습니다</h1><p class="lede">Supabase 주소와 키를 확인해 주세요. (${esc(e.message||e)})</p></div>`;
+      return;
+    }
+  } else {
+    S.store = DemoStore();
+  }
+  S.me = ls.get(ME_KEY, null); if(S.me) S.me.role = PAGE_ROLE;
+  try{ S.cats = await S.store.categories(); }catch(e){ S.cats = DEFAULT_CATEGORIES; }
+  renderShell();
+  await refresh();
+  const h = location.hash.replace("#","");
+  if(/^REQ-\d+$/.test(h)) openDetail(parseInt(h.slice(4),10));
+}
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=()=>rej(new Error("Supabase 라이브러리를 불러오지 못했습니다.")); document.head.appendChild(s); }); }
+
+/* ---------- 작성자 (로그인 없이 이름·소속만) ---------- */
+const ME_KEY = "lions-req-me";
+function roleBadge(role){ return `<span class="role ${esc(role||"")}">${ROLES[role]||""}</span>`; }
+function whoHTML(){
+  return S.me ? `<span class="who-lb">작성자</span><b>${esc(S.me.name)}</b>${roleBadge(S.me.role)}`
+              : `<span class="who-lb">작성자</span><b>이름 입력</b>`;
+}
+function setMe(name){
+  S.me = {name, role:PAGE_ROLE}; ls.set(ME_KEY, {name});
+  const w=$("#whoBtn"); if(w) w.innerHTML = whoHTML();
+  const rw=$("#replyWho"); if(rw) rw.innerHTML = replyWhoHTML();
+}
+function openIdentity(onDone){
+  $(".idbox")?.remove();
+  const box=document.createElement("div"); box.className="idbox";
+  box.innerHTML = `
+    <form class="idcard" id="idForm" novalidate>
+      <h2 style="margin-bottom:4px">누구로 남길까요?</h2>
+      <p class="lede" style="font-size:13px;margin:0 0 16px">이 브라우저에 기억되어 다음부터 자동으로 들어갑니다.</p>
+      <label class="lb" for="idName">이름</label>
+      <input class="field" id="idName" maxlength="30" placeholder="예) 김OO 매니저" value="${esc(S.me?.name||"")}" autocomplete="name">
+      <span class="err" id="eIdName" hidden>이름을 입력해주세요.</span>
+      <span class="lb" style="margin-top:14px">소속</span>
+      <div class="fixed-role">${roleBadge(PAGE_ROLE)}<span>이 주소에서는 ${ROLES[PAGE_ROLE]}(으)로 등록됩니다</span></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px">
+        <button class="btn ghost" type="button" id="idCancel">취소</button>
+        <button class="btn primary" type="submit">저장</button>
+      </div>
+    </form>`;
+  document.body.appendChild(box);
+  box.querySelector("#idCancel").onclick = () => box.remove();
+  box.onclick = e => { if(e.target===box) box.remove(); };
+  box.querySelector("#idForm").onsubmit = e => {
+    e.preventDefault();
+    const name=box.querySelector("#idName").value.trim();
+    if(!name){ box.querySelector("#eIdName").hidden=false; box.querySelector("#idName").focus(); return; }
+    setMe(name); box.remove(); toast(`${name}(${ROLES[PAGE_ROLE]})으로 작성합니다`);
+    onDone && onDone();
+  };
+  setTimeout(()=>box.querySelector("#idName").focus(), 30);
+}
+function replyWhoHTML(){ return S.me ? `${esc(S.me.name)} ${roleBadge(S.me.role)}` : `작성자 이름 입력`; }
+function formWhoHTML(){ return S.me ? `<span class="who-lb">작성자</span> <b>${esc(S.me.name)}</b> ${roleBadge(S.me.role)}` : `<span class="who-lb">작성자</span> <b>이름 입력</b>`; }
+function needMe(then){ if(S.me?.name) return then(); openIdentity(then); }
+
+/* ---------- 화면 ---------- */
+function renderShell(){
+  const demo = S.store.mode==="demo";
+  $("#app").innerHTML = `
+    <header class="top">
+      <div>
+        <div class="eyebrow"><span class="dot"></span>Samsung Lions 신규 앱 구축 · ${ROLES[PAGE_ROLE]} 요청함</div>
+        <h1>삼성라이온즈 앱 제작 요청 및 협의사항</h1>
+        <p class="lede">관련 담당자가 요청사항과 답변을 공유하고, 처리 상태를 통해 진행 상황을 함께 관리합니다.</p>
+      </div>
+      <div class="top-actions">
+        <button class="who" id="whoBtn" type="button" title="작성자 이름 변경">${whoHTML()}</button>
+        <button class="btn primary" id="newBtn" type="button">${ic("plus")}새 요청</button>
+      </div>
+    </header>
+    ${demo ? `<div class="notice">${ic("info")}<div><b>예시 데이터로 보는 중입니다.</b> 입력한 내용은 이 브라우저에만 저장됩니다. 실제로는 소속별로 주소가 따로 있고, 여기서는 아래 버튼으로 각 주소 화면을 미리 볼 수 있습니다. <button class="linkish" id="resetDemo" type="button">예시 초기화</button><div class="seg" id="pageSeg" style="margin-top:8px">${Object.entries(ROLES).map(([k,v])=>`<button type="button" data-p="${k}" aria-pressed="${k===PAGE_ROLE}">${v} 주소</button>`).join("")}</div></div></div>` : ""}
+    <div class="viewbar"><div class="seg" id="viewSeg" role="group" aria-label="보기"></div></div>
+    <div class="tabs" id="tabs" role="toolbar" aria-label="처리 상태"></div>
+    <div class="toolbar">
+      <label class="search"><span class="sr">검색</span>${ic("search")}<input id="q" type="search" placeholder="제목, 내용, 화면 ID, 작성자로 검색"></label>
+      <label class="sr" for="tgtSel">구분</label>
+      <select class="field" id="tgtSel"><option value="all">전체 구분</option>${TARGETS.map(t=>`<option value="${t.id}">${t.label}</option>`).join("")}</select>
+      <label class="sr" for="whoSel">작성 소속</label>
+      <select class="field" id="whoSel"><option value="all">전체 작성 소속</option>${Object.entries(ROLES).map(([k,v])=>`<option value="${k}">${v} 작성</option>`).join("")}</select>
+      <label class="sr" for="catSel">카테고리</label>
+      <select class="field" id="catSel"><option value="all">전체 카테고리</option>${S.cats.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select>
+      <label class="sr" for="sortSel">정렬</label>
+      <select class="field" id="sortSel">
+        <option value="updated">최근 업데이트순</option>
+        <option value="due">회신 기한 임박순</option>
+        <option value="priority">우선순위순</option>
+        <option value="created">최근 등록순</option>
+      </select>
+    </div>
+    <div class="list" id="list"></div>`;
+
+  $("#newBtn").onclick = openComposer;
+  $("#whoBtn").onclick = () => openIdentity();
+  $("#q").oninput = e => { resetShown(); S.filter.q=e.target.value.trim().toLowerCase(); renderList(); };
+  $("#tgtSel").onchange = e => { resetShown(); S.filter.tgt=e.target.value; renderTabs(); renderList(); };
+  $("#viewSeg").onclick = e => { const b=e.target.closest("button"); if(!b) return; resetShown(); S.filter.view=b.dataset.v; S.filter.status="all"; renderTabs(); renderList(); };
+  $("#pageSeg")?.addEventListener("click", e => { const b=e.target.closest("button"); if(!b) return; PAGE_ROLE=b.dataset.p; if(S.me) S.me.role=PAGE_ROLE; closePanel(); S.filter.view="in"; S.filter.status="all"; resetShown(); renderShell(); renderTabs(); renderList(); });
+  $("#whoSel").onchange = e => { resetShown(); S.filter.who=e.target.value; renderTabs(); renderList(); };
+  $("#catSel").onchange = e => { resetShown(); S.filter.cat=e.target.value; renderTabs(); renderList(); };
+  $("#sortSel").onchange = e => { resetShown(); S.filter.sort=e.target.value; renderList(); };
+  $("#resetDemo")?.addEventListener("click", async()=>{ S.store.reset(); closePanel(); await refresh(); toast("예시 데이터로 되돌렸습니다"); });
+}
+
+async function refresh(fromRealtime){
+  try{ S.reqs = await S.store.list(); }catch(e){ console.error(e); toast("목록을 불러오지 못했습니다: "+(e.message||e)); return; }
+  renderTabs(); renderList();
+  if(fromRealtime && S.openId && !$("#replyText")?.value) openDetail(S.openId, true);
+}
+
+function baseFiltered(){ return S.reqs.filter(r => (S.filter.cat==="all" || r.category_id===S.filter.cat) && (S.filter.who==="all" || r.author_role===S.filter.who) && inView(r, S.filter.view) && (S.filter.tgt==="all" || (r.target||"app")===S.filter.tgt)); }
+function renderTabs(){
+  const vs=$("#viewSeg");
+  if(vs){ const pre=S.reqs.filter(r => (S.filter.cat==="all" || r.category_id===S.filter.cat) && (S.filter.who==="all" || r.author_role===S.filter.who) && (S.filter.tgt==="all" || (r.target||"app")===S.filter.tgt));
+    vs.innerHTML = VIEWS.map(v=>`<button type="button" data-v="${v.id}" aria-pressed="${S.filter.view===v.id}">${v.label}<span class="n">${pre.filter(r=>inView(r,v.id)).length}</span></button>`).join(""); }
+  const base = baseFiltered();
+  const cnt = s => base.filter(r=>r.status===s).length;
+  const late = base.filter(isLate).length;
+  const items = [{id:"all",label:"전체",n:base.length}, ...STATUSES.map(s=>({id:s.id,label:s.label,n:cnt(s.id),c:STATUS_COLOR[s.id]}))];
+  if(late) items.push({id:"late", label:"기한 지남", n:late, c:"var(--danger)"});
+  $("#tabs").innerHTML = items.map(t=>`<button class="tab" type="button" data-s="${t.id}" aria-pressed="${S.filter.status===t.id}">${t.c?`<span class="sw" style="background:${t.c}"></span>`:""}${t.label}<span class="n">${t.n}</span></button>`).join("");
+  $("#tabs").onclick = e => { const b=e.target.closest(".tab"); if(!b) return; resetShown(); S.filter.status=b.dataset.s; renderTabs(); renderList(); };
+}
+
+function renderList(){
+  const f=S.filter;
+  let rows = baseFiltered().filter(r=>{
+    if(f.status==="late"){ if(!isLate(r)) return false; }
+    else if(f.status!=="all" && r.status!==f.status) return false;
+    if(f.q){ const hay=(code(r.id)+" "+r.title+" "+(r.body||"")+" "+(r.screen_ref||"")+" "+(r.author_name||"")).toLowerCase(); if(!hay.includes(f.q)) return false; }
+    return true;
+  });
+  const by = {
+    updated:(a,b)=>new Date(b.updated_at)-new Date(a.updated_at),
+    created:(a,b)=>new Date(b.created_at)-new Date(a.created_at),
+    due:(a,b)=>(a.due_date||"9999")<(b.due_date||"9999")?-1:(a.due_date||"9999")>(b.due_date||"9999")?1:0,
+    priority:(a,b)=>(PRIO_RANK[a.priority]-PRIO_RANK[b.priority]) || (new Date(b.updated_at)-new Date(a.updated_at))
+  };
+  rows.sort(by[f.sort]);
+  const total = rows.length;
+  rows = rows.slice(0, S.shown);
+  const el=$("#list");
+  if(!rows.length){
+    el.innerHTML = `<div class="empty">${S.reqs.length ? "조건에 맞는 요청이 없습니다." : "아직 등록된 요청이 없습니다. 오른쪽 위 ‘새 요청’으로 시작하세요."}</div>`;
+    return;
+  }
+  el.innerHTML = `<div class="list-head"><span>번호</span><span>요청</span><span>회신 기한</span><span>상태</span></div>` +
+    rows.map(r=>{
+      const c=catOf(r.category_id); const late=isLate(r);
+      return `<button class="row ${r.author_role==="client"?"client":""} ${S.openId===r.id?"active":""}" type="button" data-id="${r.id}">
+        <span class="code">${code(r.id)}</span>
+        <span class="main">
+          <span class="t">${r.priority!=="normal"?`<span class="prio ${r.priority}">${PRIORITIES.find(p=>p.id===r.priority).label}</span> `:""}${esc(r.title)}</span>
+          <span class="sub">
+            <span class="tgt ${r.target==="admin"?"admin":""}">${targetLabel(r.target)}</span>
+            <span class="cat">${ic(c.icon)}${esc(c.name)}</span>
+            <span class="by ${esc(r.author_role||"")}">${esc(r.author_name||"")} · ${ROLES[r.author_role]||""}</span>${r.assignee_role?`<span class="to">→ <b class="${esc(r.assignee_role)}">${ROLES[r.assignee_role]||""}</b></span>`:""}
+            ${r.screen_ref?`<span>${ic("screen")}<span class="mono">${esc(r.screen_ref)}</span></span>`:""}
+            ${r.reply_count?`<span>${ic("chat")}답변 ${r.reply_count}</span>`:""}
+            ${r.file_count?`<span>${ic("clip")}첨부 ${r.file_count}</span>`:""}
+            <span>${ago(r.updated_at)}</span>
+          </span>
+        </span>
+        <span class="due ${late?"late":""}">${r.due_date?fmtDate(r.due_date):"—"}${late?"<small> 기한 지남</small>":""}</span>
+        <span class="pill st-${r.status}">${statusLabel(r.status)}</span>
+      </button>`;
+    }).join("") +
+    (total > rows.length ? `<button class="more" type="button" id="moreBtn">더보기 <span class="mono">${rows.length} / ${total}</span></button>` : "");
+  el.onclick = e => {
+    if(e.target.closest("#moreBtn")){ S.shown += PAGE; renderList(); return; }
+    const b=e.target.closest(".row"); if(b) openDetail(+b.dataset.id);
+  };
+}
+
+/* ---------- 패널 ---------- */
+function openPanel(html){
+  const p=$("#panel"); p.innerHTML=html; p.classList.add("on"); p.setAttribute("aria-hidden","false");
+  $("#scrim").classList.add("on"); document.body.style.overflow="hidden";
+}
+function closePanel(){
+  const p=$("#panel"); p.classList.remove("on"); p.setAttribute("aria-hidden","true");
+  $("#scrim").classList.remove("on"); document.body.style.overflow="";
+  S.openId=null; S.replyFiles=[];
+  if(location.hash) history.replaceState(null,"",location.pathname+location.search);
+  renderList();
+}
+$("#scrim").onclick = closePanel;
+document.addEventListener("keydown", e=>{
+  if(e.key!=="Escape") return;
+  if($(".lightbox")) return $(".lightbox").remove();
+  if($("#panel").classList.contains("on")) closePanel();
+});
+
+function filesHTML(list){
+  if(!list?.length) return "";
+  return `<div class="files">${list.map(a=>{
+    const img = a.url && (a.mime||"").startsWith("image/");
+    const inner = `<span class="fn"><span title="${esc(a.file_name)}">${esc(a.file_name)}</span><small>${fmtSize(a.size)}</small></span>`;
+    if(img) return `<div class="file"><button class="thumb" type="button" data-img="${esc(a.url)}" aria-label="${esc(a.file_name)} 크게 보기"><img src="${esc(a.url)}" alt=""></button>${inner}</div>`;
+    const thumb = `<span class="thumb">${ic("file")}</span>`;
+    return a.url && /^(https?:|data:image\/)/i.test(a.url) ? `<a class="file" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${thumb}${inner}</a>` : `<div class="file" title="데모에서는 이미지만 미리보기로 저장됩니다">${thumb}${inner}</div>`;
+  }).join("")}</div>`;
+}
+function chipsHTML(files, key){
+  return files.map((f,i)=>`<span class="chip"><span>${esc(f.name)}</span><small>${fmtSize(f.size)}</small><button type="button" data-rm="${key}:${i}" aria-label="${esc(f.name)} 빼기">${ic("x")}</button></span>`).join("");
+}
+
+async function openDetail(id, quiet){
+  S.openId=id; S.replyFiles = quiet ? S.replyFiles : [];
+  renderList();
+  history.replaceState(null,"","#"+code(id));
+  let r;
+  try{ r = await S.store.get(id); }catch(e){ toast("요청을 불러오지 못했습니다"); return; }
+  if(!r) return;
+  const c=catOf(r.category_id); const late=isLate(r);
+  const events = [
+    ...r.replies.map(x=>({t:x.created_at, kind:"reply", x})),
+    ...r.logs.map(x=>({t:x.created_at, kind:"log", x}))
+  ].sort((a,b)=>new Date(a.t)-new Date(b.t));
+  const statusOpts = STATUSES.filter(s=>s.id!==r.status).map(s=>`<option value="${s.id}">${s.label}(으)로 변경</option>`).join("");
+
+  openPanel(`
+    <div class="panel-head">
+      <div class="grow"><span class="mono" style="color:var(--muted);font-size:13px">${code(r.id)}</span><span class="cat">${ic(c.icon)}${esc(c.name)}</span><span class="pill st-${r.status}">${statusLabel(r.status)}</span></div>
+      ${keyFor("r", r.id) ? `<button class="btn sm" type="button" id="editReq">${ic("design")}수정</button>` : ""}
+      <button class="icon-btn" type="button" id="closeP" aria-label="닫기">${ic("x")}</button>
+    </div>
+    <div class="panel-body">
+      <h2>${r.priority!=="normal"?`<span class="prio ${r.priority}" style="vertical-align:3px">${PRIORITIES.find(p=>p.id===r.priority).label}</span> `:""}${esc(r.title)}</h2>
+      <dl class="meta">
+        <div><dt>작성자</dt><dd>${esc(r.author_name)} ${roleBadge(r.author_role)}</dd></div>
+        <div><dt>등록일</dt><dd>${fmtDateTime(r.created_at)}${r.edited_at?` <span class="edited" title="${fmtDateTime(r.edited_at)} 수정">수정됨</span>`:""}</dd></div>
+        <div><dt>회신 기한</dt><dd style="${late?"color:var(--danger)":""}">${r.due_date?fmtDate(r.due_date)+(late?" · 지남":""):"없음"}</dd></div>
+        <div><dt>요청 대상</dt><dd>${r.assignee_role?roleBadge(r.assignee_role):"—"}</dd></div>
+        <div><dt>구분</dt><dd>${targetLabel(r.target)}</dd></div>
+        <div><dt>관련 화면</dt><dd class="${r.screen_ref?"mono":""}">${esc(r.screen_ref)||"—"}</dd></div>
+        ${r.ref_url?`<div class="wide"><dt>관련 URL</dt><dd>${/^https?:\/\//i.test(r.ref_url)?`<a class="mono" href="${esc(r.ref_url)}" target="_blank" rel="noopener noreferrer">${esc(r.ref_url)}</a>`:`<span class="mono">${esc(r.ref_url)}</span>`}</dd></div>`:""}
+      </dl>
+      <div class="body-text">${esc(r.body)}</div>
+      ${r.attachments.length?`<div class="section"><h3>${ic("clip")}첨부 <span class="n">${r.attachments.length}</span></h3>${filesHTML(r.attachments)}</div>`:""}
+
+      <div class="section">
+        <h3>처리 상태</h3>
+        <div class="status-ctl" id="statusCtl">${STATUSES.map(s=>`<button type="button" data-s="${s.id}" aria-pressed="${r.status===s.id}" class="${r.status===s.id?"st-"+s.id:""}">${s.label}</button>`).join("")}</div>
+      </div>
+
+      <div class="section">
+        <h3>${ic("chat")}답변 <span class="n">${r.replies.length}</span></h3>
+        <div class="thread">
+          ${events.length ? events.map(ev=> ev.kind==="log"
+            ? `<div class="sys">${esc(ev.x.changed_by||"")}님이 상태를 ‘${statusLabel(ev.x.to_status)}’(으)로 변경 · ${ago(ev.t)}</div>`
+            : (()=>{ const x=ev.x; const role=x.author_role; return `
+              <div class="msg ${esc(role||"")}">
+                <span class="av ${esc(role||"")}">${esc((x.author_name||"?").slice(0,1))}</span>
+                <div>
+                  <div class="msg-head"><b>${esc(x.author_name)}</b>${roleBadge(role)}<time datetime="${x.created_at}">${fmtDateTime(x.created_at)}</time>${x.edited_at?`<span class="edited">수정됨</span>`:""}${keyFor("p", x.id) && x.body ? `<button class="linkish mini" type="button" data-edit-reply="${esc(x.id)}">수정</button>`:""}</div>
+                  ${x.body?`<div class="bubble" data-bubble="${esc(x.id)}">${esc(x.body)}</div>`:""}
+                  ${filesHTML(x.attachments)}
+                </div>
+              </div>`; })()
+          ).join("") : `<p class="lede" style="font-size:13px;margin:0">아직 답변이 없습니다.</p>`}
+        </div>
+
+        <div class="composer" id="replyBox">
+          <label class="sr" for="replyText">답변 입력</label>
+          <textarea id="replyText" maxlength="5000" placeholder="답변이나 추가 내용을 입력하세요 · 이미지는 붙여넣기도 됩니다"></textarea>
+          <div class="chips" id="replyChips" style="padding:0 12px"></div>
+          <div class="bar">
+            <button class="btn ghost sm who-sm" type="button" id="replyWho" title="작성자 변경">${replyWhoHTML()}</button>
+            <button class="btn ghost sm" type="button" id="replyAttach">${ic("clip")}첨부</button>
+            <label class="sr" for="replyStatus">상태 함께 변경</label>
+            <select id="replyStatus"><option value="">상태 유지</option>${statusOpts}</select>
+            <span class="grow"></span>
+            <button class="btn primary sm" type="button" id="replySend">${ic("send")}등록</button>
+          </div>
+        </div>
+        <p class="lede" style="font-size:12px;margin-top:6px">Ctrl + Enter로 바로 등록됩니다.</p>
+      </div>
+    </div>`);
+
+  $("#closeP").onclick = closePanel;
+  $("#editReq")?.addEventListener("click", () => showForm(r.category_id, {...r}, {id:r.id, key:keyFor("r", r.id)}));
+  $(".thread").addEventListener("click", e => {
+    const b=e.target.closest("[data-edit-reply]"); if(!b) return;
+    const rid=b.dataset.editReply; const rep=r.replies.find(x=>String(x.id)===rid); const bub=$(`[data-bubble="${CSS.escape(rid)}"]`);
+    if(!rep || !bub || bub.querySelector("textarea")) return;
+    bub.classList.add("editing");
+    bub.innerHTML=`<textarea maxlength="5000" aria-label="답변 수정">${esc(rep.body)}</textarea><div class="edit-bar"><button class="btn ghost sm" type="button" data-cancel>취소</button><button class="btn primary sm" type="button" data-save>저장</button></div>`;
+    const ta=bub.querySelector("textarea"); ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
+    bub.querySelector("[data-cancel]").onclick=()=>{ bub.classList.remove("editing"); bub.textContent=rep.body; };
+    bub.querySelector("[data-save]").onclick=async ev=>{
+      const nb=ta.value.trim(); if(!nb){ ta.focus(); return; }
+      if(nb===rep.body){ bub.classList.remove("editing"); bub.textContent=rep.body; return; }
+      ev.target.disabled=true;
+      try{ await S.store.updateReply(rep.id, keyFor("p", rep.id), nb); toast("답변을 수정했습니다"); await refresh(); openDetail(r.id, true); }
+      catch(err){ ev.target.disabled=false; toast("수정하지 못했습니다: "+(err.message||err)); }
+    };
+  });
+  const renderReplyChips = () => { $("#replyChips").innerHTML = chipsHTML(S.replyFiles,"reply"); $("#replyChips").style.paddingBottom = S.replyFiles.length?"10px":"0"; };
+  renderReplyChips();
+  $("#replyChips").onclick = e => { const b=e.target.closest("[data-rm]"); if(!b) return; S.replyFiles.splice(+b.dataset.rm.split(":")[1],1); renderReplyChips(); };
+  $("#replyAttach").onclick = () => pickFiles(fs=>{ S.replyFiles.push(...fs); renderReplyChips(); });
+  $("#replyText").addEventListener("paste", e=>{ const fs=[...(e.clipboardData?.files||[])]; if(fs.length){ e.preventDefault(); S.replyFiles.push(...checkFiles(fs.map(renamePasted))); renderReplyChips(); } });
+  const box=$("#replyBox");
+  box.addEventListener("dragover", e=>{ e.preventDefault(); });
+  box.addEventListener("drop", e=>{ e.preventDefault(); S.replyFiles.push(...checkFiles([...e.dataTransfer.files])); renderReplyChips(); });
+
+  const send = async () => {
+    const body=$("#replyText").value.trim(); const st=$("#replyStatus").value;
+    if(!body && !S.replyFiles.length && !st){ $("#replyText").focus(); return; }
+    const btn=$("#replySend"); btn.disabled=true; btn.textContent="등록 중…";
+    try{
+      const k=newKey(); const rid = await S.store.reply(r.id, body, S.replyFiles, st||null, S.me, k);
+      if(rid!=null) saveKey("p", rid, k);
+      S.replyFiles=[]; toast(st ? `답변을 등록하고 ‘${statusLabel(st)}’(으)로 변경했습니다` : "답변을 등록했습니다");
+      await refresh(); openDetail(r.id);
+      setTimeout(()=>{ const pb=$(".panel-body"); if(pb) pb.scrollTop=pb.scrollHeight; }, 30);
+    }catch(e){ console.error(e); toast("등록하지 못했습니다: "+(e.message||e)); btn.disabled=false; btn.innerHTML=ic("send")+"등록"; }
+  };
+  $("#replySend").onclick = () => needMe(send);
+  $("#replyWho").onclick = () => openIdentity();
+  $("#replyText").addEventListener("keydown", e=>{ if(e.key==="Enter" && (e.ctrlKey||e.metaKey)) needMe(send); });
+
+  $("#statusCtl").onclick = async e => {
+    const b=e.target.closest("button"); if(!b || b.dataset.s===r.status) return;
+    if(!S.me?.name) return openIdentity(()=>b.click());
+    try{ await S.store.setStatus(r.id, b.dataset.s, S.me); toast(`‘${statusLabel(b.dataset.s)}’(으)로 변경했습니다`); await refresh(); openDetail(r.id, true); }
+    catch(err){ toast("변경하지 못했습니다: "+(err.message||err)); }
+  };
+  bindLightbox($("#panel"));
+}
+
+function bindLightbox(root){
+  root.querySelectorAll("[data-img]").forEach(b=>b.onclick=()=>{
+    const lb=document.createElement("div"); lb.className="lightbox";
+    lb.innerHTML=`<img src="${esc(b.dataset.img)}" alt=""><button class="icon-btn" type="button" aria-label="닫기">${ic("x")}</button>`;
+    lb.onclick=ev=>{ if(ev.target.tagName!=="IMG") lb.remove(); };
+    document.body.appendChild(lb);
+  });
+}
+
+/* ---------- 파일 선택 ---------- */
+function pickFiles(cb){
+  const inp=$("#filepick"); inp.value="";
+  inp.onchange=()=>cb(checkFiles([...inp.files]));
+  inp.click();
+}
+function checkFiles(fs){
+  const max=CONFIG.MAX_FILE_MB*1048576; const ok=[]; const big=[];
+  fs.forEach(f=> f.size>max ? big.push(f.name) : ok.push(f));
+  if(big.length) toast(`파일당 ${CONFIG.MAX_FILE_MB}MB까지 올릴 수 있습니다. 올리지 못한 파일: ${big.join(", ")}`);
+  return ok;
+}
+function renamePasted(f){
+  if(f.name && f.name!=="image.png") return f;
+  const d=new Date(); const n=`붙여넣은_이미지_${d.getHours()}${String(d.getMinutes()).padStart(2,"0")}${String(d.getSeconds()).padStart(2,"0")}.png`;
+  try{ return new File([f], n, {type:f.type}); }catch(e){ return f; }
+}
+
+/* ---------- 수정키 (글을 쓴 브라우저에만 저장) ---------- */
+const keysName = () => "lions-req-keys-" + (S.store?.mode||"demo");
+function getKeys(){ const k=ls.get(keysName(), null); return (k && k.r && k.p) ? k : {r:{}, p:{}}; }
+function saveKey(kind, id, key){ const k=getKeys(); k[kind][id]=key; ls.set(keysName(), k); }
+function keyFor(kind, id){ return getKeys()[kind][id] || null; }
+function newKey(){ if(crypto.randomUUID) return crypto.randomUUID()+"-"+crypto.randomUUID(); const a=new Uint8Array(32); crypto.getRandomValues(a); return [...a].map(b=>b.toString(16).padStart(2,"0")).join(""); }
+
+/* ---------- 새 요청 작성 ---------- */
+const DRAFT_KEY="lions-req-draft";
+function openComposer(){
+  S.openId=null; S.draftFiles=[]; renderList();
+  const d = ls.get(DRAFT_KEY, null);
+  if(d && d.category_id && (d.title||d.body)) return showForm(d.category_id, d);
+  showCategoryStep();
+}
+function showCategoryStep(edit=null, keep=null){
+  openPanel(`
+    <div class="panel-head"><div class="grow"><b>${edit?"요청 수정":"새 요청"}</b></div><button class="icon-btn" type="button" id="closeP" aria-label="닫기">${ic("x")}</button></div>
+    <div class="panel-body">
+      ${edit?"":`<div class="step-label">1 / 2 단계</div>`}
+      <h2 style="margin-bottom:4px">어떤 요청인가요?</h2>
+      <p class="lede">카테고리를 고르면 맞는 작성 안내가 나옵니다.</p>
+      <div class="cats" id="cats">
+        ${S.cats.map(c=>`<button class="cat-tile" type="button" data-c="${esc(c.id)}"><span class="ic">${ic(c.icon)}</span><span class="txt"><b>${esc(c.name)}</b><span>${esc(c.description||"")}</span></span></button>`).join("")}
+      </div>
+    </div>`);
+  $("#closeP").onclick = closePanel;
+  $("#cats").onclick = e => { const b=e.target.closest(".cat-tile"); if(b) showForm(b.dataset.c, edit ? keep : ls.get(DRAFT_KEY,{}), edit); };
+}
+function showForm(catId, draft={}, edit=null){
+  const c=catOf(catId);
+  const prio = draft.priority || "normal";
+  const target0 = draft.target || "app";
+  const assignee0 = draft.assignee_role || (PAGE_ROLE==="agency" ? "client" : "agency");
+  openPanel(`
+    <div class="panel-head">
+      <button class="icon-btn" type="button" id="backP" aria-label="${edit?"요청으로 돌아가기":"카테고리 다시 고르기"}">${ic("back")}</button>
+      <div class="grow"><b>${edit?`${code(edit.id)} 수정`:"새 요청"}</b></div>
+      <button class="icon-btn" type="button" id="closeP" aria-label="닫기">${ic("x")}</button>
+    </div>
+    <form class="panel-body form" id="reqForm" novalidate>
+      <div>
+        ${edit?"":`<div class="step-label">2 / 2 단계</div>`}
+        <div class="picked"><span class="cat">${ic(c.icon)}${esc(c.name)}</span><span class="grow"></span><button class="linkish" type="button" id="changeCat">변경</button></div>
+      </div>
+      <div class="two">
+        <div>
+          <span class="lb" id="toLb">요청 대상<em>*</em></span>
+          <div class="seg role-seg" id="fAssignee" role="group" aria-labelledby="toLb">${Object.entries(ROLES).map(([k,v])=>`<button type="button" data-a="${k}" aria-pressed="${k===assignee0}">${v}</button>`).join("")}</div>
+        </div>
+        <div>
+          <span class="lb" id="tgtLb">구분<em>*</em></span>
+          <div class="seg role-seg" id="fTarget" role="group" aria-labelledby="tgtLb">${TARGETS.map(t=>`<button type="button" data-t="${t.id}" aria-pressed="${t.id===target0}">${t.label}</button>`).join("")}</div>
+        </div>
+      </div>
+      <div>
+        <label class="lb" for="fTitle">제목<em>*</em></label>
+        <input class="field" id="fTitle" maxlength="80" placeholder="한 줄로 요약해주세요" value="${esc(draft.title||"")}">
+        <span class="err" id="eTitle" hidden>제목을 입력해주세요.</span>
+      </div>
+      <div>
+        <label class="lb" for="fBody">내용<em>*</em></label>
+        <textarea class="field" id="fBody" maxlength="5000" placeholder="${esc(c.hint||"요청 내용을 적어주세요.")}">${esc(draft.body||"")}</textarea>
+        <span class="err" id="eBody" hidden>내용을 입력해주세요.</span>
+      </div>
+      <div class="two">
+        <div>
+          <label class="lb" for="fScreen">관련 화면<small>선택</small></label>
+          <input class="field mono" id="fScreen" placeholder="예) HOME-01, ADMIN-03" value="${esc(draft.screen_ref||"")}">
+        </div>
+        <div>
+          <label class="lb" for="fUrl">관련 URL<small>선택</small></label>
+          <input class="field mono" id="fUrl" type="url" inputmode="url" placeholder="https://" value="${esc(draft.ref_url||"")}">
+        </div>
+      </div>
+      <div class="two">
+        <div>
+          <label class="lb" for="fDue">회신 기한<small>선택</small></label>
+          <input class="field" id="fDue" type="date" min="${todayStr()}" value="${esc(draft.due_date||"")}">
+        </div>
+        <div>
+          <span class="lb" id="prioLb">우선순위</span>
+          <div class="seg role-seg" id="fPrio" role="group" aria-labelledby="prioLb">${PRIORITIES.map(p=>`<button type="button" data-p="${p.id}" aria-pressed="${p.id===prio}">${p.label}</button>`).join("")}</div>
+        </div>
+      </div>
+      ${edit ? `<p class="lede" style="font-size:12.5px;margin:0">첨부파일은 수정 화면에서 바꿀 수 없습니다. 추가 자료는 답변에 첨부해주세요.</p>` : ""}
+      <div ${edit?"hidden":""}>
+        <span class="lb">자료·이미지 첨부<small>파일당 최대 ${CONFIG.MAX_FILE_MB}MB</small></span>
+        <div class="drop" id="drop" tabindex="0" role="button" aria-label="파일 첨부">파일을 끌어다 놓거나 <b>클릭해서 선택</b>하세요<br>이미지는 내용 칸에 붙여넣어도(Ctrl+V) 첨부됩니다</div>
+        <div class="chips" id="fChips"></div>
+      </div>
+    </form>
+    <div class="panel-foot">
+      ${edit ? `<span class="foot-who" style="cursor:default"><span class="who-lb">작성자</span> <b>${esc(draft.author_name||"")}</b> ${roleBadge(draft.author_role)}</span>` : `<button class="foot-who" type="button" id="formWho" title="작성자 변경">${formWhoHTML()}</button>`}
+      <span class="grow"></span>
+      <button class="btn ghost" type="button" id="cancelF">취소</button>
+      <button class="btn primary" type="submit" form="reqForm" id="submitF">${edit?"수정 저장":"요청 등록"}</button>
+    </div>`);
+
+  let priority = prio, target = target0, assignee = assignee0;
+  $("#fAssignee").onclick = e => { const b=e.target.closest("button"); if(!b) return; assignee=b.dataset.a; $("#fAssignee").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b)); saveDraft(); };
+  $("#fTarget").onclick = e => { const b=e.target.closest("button"); if(!b) return; target=b.dataset.t; $("#fTarget").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b)); saveDraft(); };
+  $("#formWho")?.addEventListener("click", () => openIdentity(()=>{ const w=$("#formWho"); if(w) w.innerHTML=formWhoHTML(); }));
+  const cur = () => ({...(edit?draft:{}), category_id:catId, target, assignee_role:assignee, title:$("#fTitle").value, body:$("#fBody").value, screen_ref:$("#fScreen").value, ref_url:$("#fUrl").value, due_date:$("#fDue").value, priority});
+  const saveDraft = () => { if(!edit) ls.set(DRAFT_KEY, cur()); };
+  const renderChips = () => { $("#fChips").innerHTML = chipsHTML(S.draftFiles,"draft"); };
+  renderChips();
+  ["#fTitle","#fBody","#fScreen","#fUrl","#fDue"].forEach(s=>$(s).addEventListener("input", saveDraft));
+  $("#fPrio").onclick = e => { const b=e.target.closest("button"); if(!b) return; priority=b.dataset.p; $("#fPrio").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b)); saveDraft(); };
+  $("#fChips").onclick = e => { const b=e.target.closest("[data-rm]"); if(!b) return; S.draftFiles.splice(+b.dataset.rm.split(":")[1],1); renderChips(); };
+  const drop=$("#drop");
+  drop.onclick = () => pickFiles(fs=>{ S.draftFiles.push(...fs); renderChips(); });
+  drop.onkeydown = e => { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); drop.click(); } };
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+  drop.ondragleave = () => drop.classList.remove("over");
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); S.draftFiles.push(...checkFiles([...e.dataTransfer.files])); renderChips(); };
+  $("#fBody").addEventListener("paste", e=>{ const fs=[...(e.clipboardData?.files||[])]; if(fs.length){ e.preventDefault(); S.draftFiles.push(...checkFiles(fs.map(renamePasted))); renderChips(); toast("이미지를 첨부했습니다"); } });
+
+  $("#closeP").onclick = closePanel;
+  $("#cancelF").onclick = () => { if(edit) return openDetail(edit.id); ls.del(DRAFT_KEY); closePanel(); };
+  $("#backP").onclick = () => { if(edit) return openDetail(edit.id); saveDraft(); showCategoryStep(); };
+  $("#changeCat").onclick = () => { if(edit) return showCategoryStep(edit, cur()); saveDraft(); showCategoryStep(); };
+  setTimeout(()=>$("#fTitle").focus(), 250);
+
+  $("#reqForm").onsubmit = async e => {
+    e.preventDefault();
+    const title=$("#fTitle").value.trim(), body=$("#fBody").value.trim();
+    $("#eTitle").hidden=!!title; $("#eBody").hidden=!!body;
+    if(!title){ $("#fTitle").focus(); return; } if(!body){ $("#fBody").focus(); return; }
+    let url0=$("#fUrl").value.trim(); if(url0 && !/^https?:\/\//i.test(url0)) url0="https://"+url0;
+    if(edit){
+      const btn=$("#submitF"); btn.disabled=true; btn.textContent="저장 중…";
+      try{
+        await S.store.updateRequest(edit.id, edit.key, {category_id:catId, target, assignee_role:assignee, title, body, screen_ref:$("#fScreen").value.trim()||null, ref_url:url0||null, due_date:$("#fDue").value||null, priority});
+        toast(`${code(edit.id)} 요청을 수정했습니다`); await refresh(); openDetail(edit.id);
+      }catch(err){ console.error(err); toast("수정하지 못했습니다: "+(err.message||err)); btn.disabled=false; btn.textContent="수정 저장"; }
+      return;
+    }
+    if(!S.me?.name) return openIdentity(()=>{ $("#formWho").innerHTML=formWhoHTML(); $("#reqForm").requestSubmit(); });
+    let url=$("#fUrl").value.trim(); if(url && !/^https?:\/\//i.test(url)) url="https://"+url;
+    const btn=$("#submitF"); btn.disabled=true; btn.textContent= S.draftFiles.length ? "파일 올리는 중…" : "등록 중…";
+    try{
+      const k=newKey();
+      const row = await S.store.create({category_id:catId, target, assignee_role:assignee, title, body, screen_ref:$("#fScreen").value.trim()||null, ref_url:url||null, due_date:$("#fDue").value||null, priority}, S.draftFiles, S.me, k);
+      saveKey("r", row.id, k);
+      ls.del(DRAFT_KEY); S.draftFiles=[];
+      toast(`${code(row.id)} 요청을 등록했습니다`);
+      S.filter.status="all"; S.filter.view = assignee===PAGE_ROLE ? "in" : "out"; await refresh(); openDetail(row.id);
+    }catch(err){ console.error(err); toast("등록하지 못했습니다: "+(err.message||err)); btn.disabled=false; btn.textContent="요청 등록"; }
+  };
+}
+
+boot();
+</script>
