@@ -318,7 +318,7 @@ const CONFIG = {
   SUPABASE_URL: "https://xwzcjxtoyxiduxelpnpz.supabase.co",   // .co 까지만
   SUPABASE_ANON_KEY: "sb_publishable_4o952SwIBok8yywMJh4avw_L7fXbGgW",   // publishable(공개용) 키
   BUCKET: "request-files",
-  MAX_FILE_MB: 20
+  MAX_FILE_MB: 5
 };
 
 /* ---------- 기본 정의 ---------- */
@@ -882,7 +882,7 @@ function pickFiles(cb){
 function checkFiles(fs){
   const max=CONFIG.MAX_FILE_MB*1048576; const ok=[]; const big=[];
   fs.forEach(f=> f.size>max ? big.push(f.name) : ok.push(f));
-  if(big.length) toast(`${CONFIG.MAX_FILE_MB}MB를 넘는 파일은 제외했습니다: ${big.join(", ")}`);
+  if(big.length) toast(`파일당 ${CONFIG.MAX_FILE_MB}MB까지 올릴 수 있습니다. 올리지 못한 파일: ${big.join(", ")}`);
   return ok;
 }
 function renamePasted(f){
