@@ -226,6 +226,11 @@ h3 .n{font-family:var(--mono);color:var(--muted);font-weight:500}
 .msg .bubble{margin-top:4px;padding:10px 12px;background:var(--surface-2);border-radius:4px 10px 10px 10px;white-space:pre-wrap;overflow-wrap:anywhere}
 .msg.client .bubble{background:var(--accent-soft)}
 .msg .files{margin-top:8px}
+.edited{font-size:11.5px;color:var(--muted);font-weight:500;margin-left:2px}
+.linkish.mini{font-size:12px;padding:0 2px;margin-left:auto}
+.bubble.editing{padding:8px;background:var(--surface)!important;border:1px solid var(--accent)}
+.bubble.editing textarea{width:100%;min-height:90px;border:0;outline:none;resize:vertical;background:transparent;line-height:1.6}
+.edit-bar{display:flex;justify-content:flex-end;gap:6px;margin-top:4px}
 .sys{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px;padding-left:42px}
 .sys::before{content:"";width:14px;height:1px;background:var(--line-strong)}
 
@@ -434,6 +439,8 @@ function seedDemo(){
 function DemoStore(){
   const KEY="lions-req-demo-v3";
   let db = ls.get(KEY, null) || seedDemo();
+  // 미리보기용: 예시 중 일부를 '내가 쓴 글'로 표시해 수정 버튼을 볼 수 있게 함
+  if(!ls.get("lions-req-keys-demo", null)) ls.set("lions-req-keys-demo", {r:{7:"demo",3:"demo"}, p:{r3:"demo"}});
   const save = () => ls.set(KEY, db);
   const find = id => db.reqs.find(r=>r.id===id);
   async function toAtt(files){
@@ -451,20 +458,23 @@ function DemoStore(){
     async categories(){ return DEFAULT_CATEGORIES; },
     async list(){ return db.reqs.map(r=>({...r, reply_count:r.replies.length, file_count:r.attachments.length + r.replies.reduce((n,x)=>n+x.attachments.length,0)})); },
     async get(id){ return JSON.parse(JSON.stringify(find(id))); },
-    async create(d, files, me){
+    async create(d, files, me, key){
       const now=new Date().toISOString();
       const r={id:++db.seq, ...d, status:"requested", author_name:me.name, author_role:me.role, created_at:now, updated_at:now, attachments:await toAtt(files), replies:[], logs:[]};
       db.reqs.unshift(r); save(); return r;
     },
-    async reply(id, body, files, status, me){
-      const r=find(id); const now=new Date().toISOString();
+    async reply(id, body, files, status, me, key){
+      const r=find(id); const now=new Date().toISOString(); let rid=null;
       if(body || files.length){
-        r.replies.push({id:"r"+Math.random().toString(36).slice(2), body, author_name:me.name, author_role:me.role, created_at:now, attachments:await toAtt(files)});
+        rid="r"+Math.random().toString(36).slice(2);
+        r.replies.push({id:rid, body, author_name:me.name, author_role:me.role, created_at:now, attachments:await toAtt(files)});
         if(me.role!==r.author_role && r.status==="requested" && !status) log(r,"reviewing",me.name);
       }
       if(status) log(r,status,me.name);
-      r.updated_at=now; save();
+      r.updated_at=now; save(); return rid;
     },
+    async updateRequest(id, key, f){ const r=find(id); Object.assign(r, f, {edited_at:new Date().toISOString(), updated_at:new Date().toISOString()}); save(); },
+    async updateReply(id, key, body){ for(const r of db.reqs){ const x=r.replies.find(y=>y.id===id); if(x){ x.body=body; x.edited_at=new Date().toISOString(); r.updated_at=x.edited_at; save(); return; } } },
     async setStatus(id, status, me){ const r=find(id); log(r,status,me.name); r.updated_at=new Date().toISOString(); save(); },
     reset(){ db=seedDemo(); ls.del(KEY); }
   };
@@ -514,18 +524,25 @@ function SupaStore(sb){
       return {...req, attachments:atts.filter(a=>!a.reply_id).map(withUrl),
         replies:replies.map(r=>({...r, attachments:atts.filter(a=>a.reply_id===r.id).map(withUrl)})), logs};
     },
-    async create(d, files, me){
-      const row = must(await sb.from("requests").insert({...d, author_name:me.name, author_role:me.role}).select().single());
+    async create(d, files, me, key){
+      const row = must(await sb.from("requests").insert({...d, author_name:me.name, author_role:me.role, edit_key_hash:key}).select().single());
       await upload(row.id, null, files);
       return row;
     },
-    async reply(id, body, files, status, me){
+    async reply(id, body, files, status, me, key){
+      let rid=null;
       if(body || files.length){
-        const r = must(await sb.from("replies").insert({request_id:id, body, author_name:me.name, author_role:me.role}).select().single());
-        await upload(id, r.id, files);
+        const r = must(await sb.from("replies").insert({request_id:id, body, author_name:me.name, author_role:me.role, edit_key_hash:key}).select().single());
+        rid=r.id; await upload(id, r.id, files);
       }
       if(status) must(await sb.from("requests").update({status, status_changed_by:me.name}).eq("id",id));
+      return rid;
     },
+    async updateRequest(id, key, f){
+      must(await sb.rpc("edit_request", {p_id:id, p_key:key, p_category_id:f.category_id, p_target:f.target, p_title:f.title, p_body:f.body,
+        p_screen_ref:f.screen_ref||"", p_ref_url:f.ref_url||"", p_due_date:f.due_date||null, p_priority:f.priority}));
+    },
+    async updateReply(id, key, body){ must(await sb.rpc("edit_reply", {p_id:id, p_key:key, p_body:body})); },
     async setStatus(id, status, me){ must(await sb.from("requests").update({status, status_changed_by:me.name}).eq("id",id)); }
   };
 }
@@ -780,13 +797,14 @@ async function openDetail(id, quiet){
   openPanel(`
     <div class="panel-head">
       <div class="grow"><span class="mono" style="color:var(--muted);font-size:13px">${code(r.id)}</span><span class="cat">${ic(c.icon)}${esc(c.name)}</span><span class="pill st-${r.status}">${statusLabel(r.status)}</span></div>
+      ${keyFor("r", r.id) ? `<button class="btn sm" type="button" id="editReq">${ic("design")}수정</button>` : ""}
       <button class="icon-btn" type="button" id="closeP" aria-label="닫기">${ic("x")}</button>
     </div>
     <div class="panel-body">
       <h2>${r.priority!=="normal"?`<span class="prio ${r.priority}" style="vertical-align:3px">${PRIORITIES.find(p=>p.id===r.priority).label}</span> `:""}${esc(r.title)}</h2>
       <dl class="meta">
         <div><dt>작성자</dt><dd>${esc(r.author_name)} ${roleBadge(r.author_role)}</dd></div>
-        <div><dt>등록일</dt><dd>${fmtDateTime(r.created_at)}</dd></div>
+        <div><dt>등록일</dt><dd>${fmtDateTime(r.created_at)}${r.edited_at?` <span class="edited" title="${fmtDateTime(r.edited_at)} 수정">수정됨</span>`:""}</dd></div>
         <div><dt>회신 기한</dt><dd style="${late?"color:var(--danger)":""}">${r.due_date?fmtDate(r.due_date)+(late?" · 지남":""):"없음"}</dd></div>
         <div><dt>구분</dt><dd>${targetLabel(r.target)}</dd></div>
         <div><dt>관련 화면</dt><dd>${esc(r.screen_ref)||"—"}</dd></div>
@@ -809,8 +827,8 @@ async function openDetail(id, quiet){
               <div class="msg ${esc(role||"")}">
                 <span class="av ${esc(role||"")}">${esc((x.author_name||"?").slice(0,1))}</span>
                 <div>
-                  <div class="msg-head"><b>${esc(x.author_name)}</b>${roleBadge(role)}<time datetime="${x.created_at}">${fmtDateTime(x.created_at)}</time></div>
-                  ${x.body?`<div class="bubble">${esc(x.body)}</div>`:""}
+                  <div class="msg-head"><b>${esc(x.author_name)}</b>${roleBadge(role)}<time datetime="${x.created_at}">${fmtDateTime(x.created_at)}</time>${x.edited_at?`<span class="edited">수정됨</span>`:""}${keyFor("p", x.id) && x.body ? `<button class="linkish mini" type="button" data-edit-reply="${esc(x.id)}">수정</button>`:""}</div>
+                  ${x.body?`<div class="bubble" data-bubble="${esc(x.id)}">${esc(x.body)}</div>`:""}
                   ${filesHTML(x.attachments)}
                 </div>
               </div>`; })()
@@ -835,6 +853,23 @@ async function openDetail(id, quiet){
     </div>`);
 
   $("#closeP").onclick = closePanel;
+  $("#editReq")?.addEventListener("click", () => showForm(r.category_id, {...r}, {id:r.id, key:keyFor("r", r.id)}));
+  $(".thread").addEventListener("click", e => {
+    const b=e.target.closest("[data-edit-reply]"); if(!b) return;
+    const rid=b.dataset.editReply; const rep=r.replies.find(x=>String(x.id)===rid); const bub=$(`[data-bubble="${CSS.escape(rid)}"]`);
+    if(!rep || !bub || bub.querySelector("textarea")) return;
+    bub.classList.add("editing");
+    bub.innerHTML=`<textarea maxlength="5000" aria-label="답변 수정">${esc(rep.body)}</textarea><div class="edit-bar"><button class="btn ghost sm" type="button" data-cancel>취소</button><button class="btn primary sm" type="button" data-save>저장</button></div>`;
+    const ta=bub.querySelector("textarea"); ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
+    bub.querySelector("[data-cancel]").onclick=()=>{ bub.classList.remove("editing"); bub.textContent=rep.body; };
+    bub.querySelector("[data-save]").onclick=async ev=>{
+      const nb=ta.value.trim(); if(!nb){ ta.focus(); return; }
+      if(nb===rep.body){ bub.classList.remove("editing"); bub.textContent=rep.body; return; }
+      ev.target.disabled=true;
+      try{ await S.store.updateReply(rep.id, keyFor("p", rep.id), nb); toast("답변을 수정했습니다"); await refresh(); openDetail(r.id, true); }
+      catch(err){ ev.target.disabled=false; toast("수정하지 못했습니다: "+(err.message||err)); }
+    };
+  });
   const renderReplyChips = () => { $("#replyChips").innerHTML = chipsHTML(S.replyFiles,"reply"); $("#replyChips").style.paddingBottom = S.replyFiles.length?"10px":"0"; };
   renderReplyChips();
   $("#replyChips").onclick = e => { const b=e.target.closest("[data-rm]"); if(!b) return; S.replyFiles.splice(+b.dataset.rm.split(":")[1],1); renderReplyChips(); };
@@ -849,7 +884,8 @@ async function openDetail(id, quiet){
     if(!body && !S.replyFiles.length && !st){ $("#replyText").focus(); return; }
     const btn=$("#replySend"); btn.disabled=true; btn.textContent="등록 중…";
     try{
-      await S.store.reply(r.id, body, S.replyFiles, st||null, S.me);
+      const k=newKey(); const rid = await S.store.reply(r.id, body, S.replyFiles, st||null, S.me, k);
+      if(rid!=null) saveKey("p", rid, k);
       S.replyFiles=[]; toast(st ? `답변을 등록하고 ‘${statusLabel(st)}’(으)로 변경했습니다` : "답변을 등록했습니다");
       await refresh(); openDetail(r.id);
       setTimeout(()=>{ const pb=$(".panel-body"); if(pb) pb.scrollTop=pb.scrollHeight; }, 30);
@@ -895,6 +931,13 @@ function renamePasted(f){
   try{ return new File([f], n, {type:f.type}); }catch(e){ return f; }
 }
 
+/* ---------- 수정키 (글을 쓴 브라우저에만 저장) ---------- */
+const keysName = () => "lions-req-keys-" + (S.store?.mode||"demo");
+function getKeys(){ const k=ls.get(keysName(), null); return (k && k.r && k.p) ? k : {r:{}, p:{}}; }
+function saveKey(kind, id, key){ const k=getKeys(); k[kind][id]=key; ls.set(keysName(), k); }
+function keyFor(kind, id){ return getKeys()[kind][id] || null; }
+function newKey(){ if(crypto.randomUUID) return crypto.randomUUID()+"-"+crypto.randomUUID(); const a=new Uint8Array(32); crypto.getRandomValues(a); return [...a].map(b=>b.toString(16).padStart(2,"0")).join(""); }
+
 /* ---------- 새 요청 작성 ---------- */
 const DRAFT_KEY="lions-req-draft";
 function openComposer(){
@@ -903,11 +946,11 @@ function openComposer(){
   if(d && d.category_id && (d.title||d.body)) return showForm(d.category_id, d);
   showCategoryStep();
 }
-function showCategoryStep(){
+function showCategoryStep(edit=null, keep=null){
   openPanel(`
-    <div class="panel-head"><div class="grow"><b>새 요청</b></div><button class="icon-btn" type="button" id="closeP" aria-label="닫기">${ic("x")}</button></div>
+    <div class="panel-head"><div class="grow"><b>${edit?"요청 수정":"새 요청"}</b></div><button class="icon-btn" type="button" id="closeP" aria-label="닫기">${ic("x")}</button></div>
     <div class="panel-body">
-      <div class="step-label">1 / 2 단계</div>
+      ${edit?"":`<div class="step-label">1 / 2 단계</div>`}
       <h2 style="margin-bottom:4px">어떤 요청인가요?</h2>
       <p class="lede">카테고리를 고르면 맞는 작성 안내가 나옵니다.</p>
       <div class="cats" id="cats">
@@ -915,21 +958,21 @@ function showCategoryStep(){
       </div>
     </div>`);
   $("#closeP").onclick = closePanel;
-  $("#cats").onclick = e => { const b=e.target.closest(".cat-tile"); if(b) showForm(b.dataset.c, ls.get(DRAFT_KEY,{})); };
+  $("#cats").onclick = e => { const b=e.target.closest(".cat-tile"); if(b) showForm(b.dataset.c, edit ? keep : ls.get(DRAFT_KEY,{}), edit); };
 }
-function showForm(catId, draft={}){
+function showForm(catId, draft={}, edit=null){
   const c=catOf(catId);
   const prio = draft.priority || "normal";
   const target0 = draft.target || "app";
   openPanel(`
     <div class="panel-head">
-      <button class="icon-btn" type="button" id="backP" aria-label="카테고리 다시 고르기">${ic("back")}</button>
-      <div class="grow"><b>새 요청</b></div>
+      <button class="icon-btn" type="button" id="backP" aria-label="${edit?"요청으로 돌아가기":"카테고리 다시 고르기"}">${ic("back")}</button>
+      <div class="grow"><b>${edit?`${code(edit.id)} 수정`:"새 요청"}</b></div>
       <button class="icon-btn" type="button" id="closeP" aria-label="닫기">${ic("x")}</button>
     </div>
     <form class="panel-body form" id="reqForm" novalidate>
       <div>
-        <div class="step-label">2 / 2 단계</div>
+        ${edit?"":`<div class="step-label">2 / 2 단계</div>`}
         <div class="picked"><span class="cat">${ic(c.icon)}${esc(c.name)}</span><span class="grow"></span><button class="linkish" type="button" id="changeCat">변경</button></div>
       </div>
       <div>
@@ -966,23 +1009,25 @@ function showForm(catId, draft={}){
           <div class="seg role-seg" id="fPrio" role="group" aria-labelledby="prioLb">${PRIORITIES.map(p=>`<button type="button" data-p="${p.id}" aria-pressed="${p.id===prio}">${p.label}</button>`).join("")}</div>
         </div>
       </div>
-      <div>
+      ${edit ? `<p class="lede" style="font-size:12.5px;margin:0">첨부파일은 수정 화면에서 바꿀 수 없습니다. 추가 자료는 답변에 첨부해주세요.</p>` : ""}
+      <div ${edit?"hidden":""}>
         <span class="lb">자료·이미지 첨부<small>파일당 최대 ${CONFIG.MAX_FILE_MB}MB</small></span>
         <div class="drop" id="drop" tabindex="0" role="button" aria-label="파일 첨부">파일을 끌어다 놓거나 <b>클릭해서 선택</b>하세요<br>이미지는 내용 칸에 붙여넣어도(Ctrl+V) 첨부됩니다</div>
         <div class="chips" id="fChips"></div>
       </div>
     </form>
     <div class="panel-foot">
-      <button class="foot-who" type="button" id="formWho" title="작성자 변경">${formWhoHTML()}</button>
+      ${edit ? `<span class="foot-who" style="cursor:default"><span class="who-lb">작성자</span> <b>${esc(draft.author_name||"")}</b> ${roleBadge(draft.author_role)}</span>` : `<button class="foot-who" type="button" id="formWho" title="작성자 변경">${formWhoHTML()}</button>`}
       <span class="grow"></span>
       <button class="btn ghost" type="button" id="cancelF">취소</button>
-      <button class="btn primary" type="submit" form="reqForm" id="submitF">요청 등록</button>
+      <button class="btn primary" type="submit" form="reqForm" id="submitF">${edit?"수정 저장":"요청 등록"}</button>
     </div>`);
 
   let priority = prio, target = target0;
   $("#fTarget").onclick = e => { const b=e.target.closest("button"); if(!b) return; target=b.dataset.t; $("#fTarget").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b)); saveDraft(); };
-  $("#formWho").onclick = () => openIdentity(()=>{ const w=$("#formWho"); if(w) w.innerHTML=formWhoHTML(); });
-  const saveDraft = () => ls.set(DRAFT_KEY, {category_id:catId, target, title:$("#fTitle").value, body:$("#fBody").value, screen_ref:$("#fScreen").value, ref_url:$("#fUrl").value, due_date:$("#fDue").value, priority});
+  $("#formWho")?.addEventListener("click", () => openIdentity(()=>{ const w=$("#formWho"); if(w) w.innerHTML=formWhoHTML(); }));
+  const cur = () => ({...(edit?draft:{}), category_id:catId, target, title:$("#fTitle").value, body:$("#fBody").value, screen_ref:$("#fScreen").value, ref_url:$("#fUrl").value, due_date:$("#fDue").value, priority});
+  const saveDraft = () => { if(!edit) ls.set(DRAFT_KEY, cur()); };
   const renderChips = () => { $("#fChips").innerHTML = chipsHTML(S.draftFiles,"draft"); };
   renderChips();
   ["#fTitle","#fBody","#fScreen","#fUrl","#fDue"].forEach(s=>$(s).addEventListener("input", saveDraft));
@@ -997,8 +1042,9 @@ function showForm(catId, draft={}){
   $("#fBody").addEventListener("paste", e=>{ const fs=[...(e.clipboardData?.files||[])]; if(fs.length){ e.preventDefault(); S.draftFiles.push(...checkFiles(fs.map(renamePasted))); renderChips(); toast("이미지를 첨부했습니다"); } });
 
   $("#closeP").onclick = closePanel;
-  $("#cancelF").onclick = () => { ls.del(DRAFT_KEY); closePanel(); };
-  $("#backP").onclick = $("#changeCat").onclick = () => { saveDraft(); showCategoryStep(); };
+  $("#cancelF").onclick = () => { if(edit) return openDetail(edit.id); ls.del(DRAFT_KEY); closePanel(); };
+  $("#backP").onclick = () => { if(edit) return openDetail(edit.id); saveDraft(); showCategoryStep(); };
+  $("#changeCat").onclick = () => { if(edit) return showCategoryStep(edit, cur()); saveDraft(); showCategoryStep(); };
   setTimeout(()=>$("#fTitle").focus(), 250);
 
   $("#reqForm").onsubmit = async e => {
@@ -1006,11 +1052,22 @@ function showForm(catId, draft={}){
     const title=$("#fTitle").value.trim(), body=$("#fBody").value.trim();
     $("#eTitle").hidden=!!title; $("#eBody").hidden=!!body;
     if(!title){ $("#fTitle").focus(); return; } if(!body){ $("#fBody").focus(); return; }
+    let url0=$("#fUrl").value.trim(); if(url0 && !/^https?:\/\//i.test(url0)) url0="https://"+url0;
+    if(edit){
+      const btn=$("#submitF"); btn.disabled=true; btn.textContent="저장 중…";
+      try{
+        await S.store.updateRequest(edit.id, edit.key, {category_id:catId, target, title, body, screen_ref:$("#fScreen").value.trim()||null, ref_url:url0||null, due_date:$("#fDue").value||null, priority});
+        toast(`${code(edit.id)} 요청을 수정했습니다`); await refresh(); openDetail(edit.id);
+      }catch(err){ console.error(err); toast("수정하지 못했습니다: "+(err.message||err)); btn.disabled=false; btn.textContent="수정 저장"; }
+      return;
+    }
     if(!S.me?.name) return openIdentity(()=>{ $("#formWho").innerHTML=formWhoHTML(); $("#reqForm").requestSubmit(); });
     let url=$("#fUrl").value.trim(); if(url && !/^https?:\/\//i.test(url)) url="https://"+url;
     const btn=$("#submitF"); btn.disabled=true; btn.textContent= S.draftFiles.length ? "파일 올리는 중…" : "등록 중…";
     try{
-      const row = await S.store.create({category_id:catId, target, title, body, screen_ref:$("#fScreen").value.trim()||null, ref_url:url||null, due_date:$("#fDue").value||null, priority}, S.draftFiles, S.me);
+      const k=newKey();
+      const row = await S.store.create({category_id:catId, target, title, body, screen_ref:$("#fScreen").value.trim()||null, ref_url:url||null, due_date:$("#fDue").value||null, priority}, S.draftFiles, S.me, k);
+      saveKey("r", row.id, k);
       ls.del(DRAFT_KEY); S.draftFiles=[];
       toast(`${code(row.id)} 요청을 등록했습니다`);
       S.filter.status="all"; await refresh(); openDetail(row.id);
