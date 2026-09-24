@@ -1,8 +1,5 @@
 <title>삼성라이온즈 앱 제작 요청 및 협의사항</title>
 <meta name="description" content="관련 담당자가 요청사항과 답변을 공유하고, 처리 상태를 통해 진행 상황을 함께 관리합니다.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
 <style>
 :root{
   --bg:#F2F4F8; --surface:#FFFFFF; --surface-2:#F6F8FB; --sunken:#EBEFF5;
@@ -20,8 +17,8 @@
   --scrim:rgba(16,24,40,.38);
   --row-client:#F3F7FD; --row-client-hover:#EAF1FB;
   --r:10px;
-  --font:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --font:"Pretendard","Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;
+  --mono:Consolas,monospace;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -730,7 +727,7 @@ function renderList(){
             <span class="tgt ${r.target==="admin"?"admin":""}">${targetLabel(r.target)}</span>
             <span class="cat">${ic(c.icon)}${esc(c.name)}</span>
             <span class="by ${esc(r.author_role||"")}">${esc(r.author_name||"")} · ${ROLES[r.author_role]||""}</span>
-            ${r.screen_ref?`<span>${ic("screen")}${esc(r.screen_ref)}</span>`:""}
+            ${r.screen_ref?`<span>${ic("screen")}<span class="mono">${esc(r.screen_ref)}</span></span>`:""}
             ${r.reply_count?`<span>${ic("chat")}답변 ${r.reply_count}</span>`:""}
             ${r.file_count?`<span>${ic("clip")}첨부 ${r.file_count}</span>`:""}
             <span>${ago(r.updated_at)}</span>
@@ -807,8 +804,8 @@ async function openDetail(id, quiet){
         <div><dt>등록일</dt><dd>${fmtDateTime(r.created_at)}${r.edited_at?` <span class="edited" title="${fmtDateTime(r.edited_at)} 수정">수정됨</span>`:""}</dd></div>
         <div><dt>회신 기한</dt><dd style="${late?"color:var(--danger)":""}">${r.due_date?fmtDate(r.due_date)+(late?" · 지남":""):"없음"}</dd></div>
         <div><dt>구분</dt><dd>${targetLabel(r.target)}</dd></div>
-        <div><dt>관련 화면</dt><dd>${esc(r.screen_ref)||"—"}</dd></div>
-        ${r.ref_url?`<div class="wide"><dt>관련 URL</dt><dd>${/^https?:\/\//i.test(r.ref_url)?`<a href="${esc(r.ref_url)}" target="_blank" rel="noopener noreferrer">${esc(r.ref_url)}</a>`:esc(r.ref_url)}</dd></div>`:""}
+        <div><dt>관련 화면</dt><dd class="${r.screen_ref?"mono":""}">${esc(r.screen_ref)||"—"}</dd></div>
+        ${r.ref_url?`<div class="wide"><dt>관련 URL</dt><dd>${/^https?:\/\//i.test(r.ref_url)?`<a class="mono" href="${esc(r.ref_url)}" target="_blank" rel="noopener noreferrer">${esc(r.ref_url)}</a>`:`<span class="mono">${esc(r.ref_url)}</span>`}</dd></div>`:""}
       </dl>
       <div class="body-text">${esc(r.body)}</div>
       ${r.attachments.length?`<div class="section"><h3>${ic("clip")}첨부 <span class="n">${r.attachments.length}</span></h3>${filesHTML(r.attachments)}</div>`:""}
@@ -992,11 +989,11 @@ function showForm(catId, draft={}, edit=null){
       <div class="two">
         <div>
           <label class="lb" for="fScreen">관련 화면<small>선택</small></label>
-          <input class="field" id="fScreen" placeholder="예) HOME-01, ADMIN-03" value="${esc(draft.screen_ref||"")}">
+          <input class="field mono" id="fScreen" placeholder="예) HOME-01, ADMIN-03" value="${esc(draft.screen_ref||"")}">
         </div>
         <div>
           <label class="lb" for="fUrl">관련 URL<small>선택</small></label>
-          <input class="field" id="fUrl" type="url" inputmode="url" placeholder="https://" value="${esc(draft.ref_url||"")}">
+          <input class="field mono" id="fUrl" type="url" inputmode="url" placeholder="https://" value="${esc(draft.ref_url||"")}">
         </div>
       </div>
       <div class="two">
