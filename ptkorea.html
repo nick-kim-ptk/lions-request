@@ -351,6 +351,7 @@ const PRIORITIES = [{id:"normal",label:"보통"},{id:"high",label:"높음"},{id:
 const PRIO_RANK = {urgent:0,high:1,normal:2};
 const ROLES = {agency:"PTK", client:"삼성라이온즈", ticketlink:"티켓링크"};
 let PAGE_ROLE = CONFIG.PAGE_ROLE;
+const BASE_TITLE = document.title || "삼성라이온즈 앱 제작 요청 및 협의사항";
 const VIEWS = [{id:"in",label:"받은 요청"},{id:"out",label:"보낸 요청"},{id:"all",label:"전체"}];
 function inView(r, v){ return v==="in" ? r.assignee_role===PAGE_ROLE : v==="out" ? r.author_role===PAGE_ROLE : (r.assignee_role===PAGE_ROLE || r.author_role===PAGE_ROLE); }
 const TARGETS = [{id:"app",label:"앱"},{id:"admin",label:"어드민"}];
@@ -771,6 +772,7 @@ function closePanel(){
   $("#scrim").classList.remove("on"); document.body.style.overflow="";
   S.openId=null; S.replyFiles=[];
   if(location.hash) history.replaceState(null,"",location.pathname+location.search);
+  document.title = BASE_TITLE;
   renderList();
 }
 $("#scrim").onclick = closePanel;
@@ -811,6 +813,7 @@ async function openDetail(id, quiet){
   openPanel(`
     <div class="panel-head">
       <div class="grow"><span class="mono" style="color:var(--muted);font-size:13px">${code(r.id)}</span><span class="cat">${ic(c.icon)}${esc(c.name)}</span><span class="pill st-${r.status}">${statusLabel(r.status)}</span></div>
+      <button class="btn sm ghost" type="button" id="copyLink" title="제목과 링크를 함께 복사">${ic("clip")}링크 복사</button>
       ${keyFor("r", r.id) ? `<button class="btn sm" type="button" id="editReq">${ic("design")}수정</button>` : ""}
       <button class="icon-btn" type="button" id="closeP" aria-label="닫기">${ic("x")}</button>
     </div>
@@ -868,6 +871,17 @@ async function openDetail(id, quiet){
     </div>`);
 
   $("#closeP").onclick = closePanel;
+  document.title = `${code(r.id)} ${r.title} · ${BASE_TITLE}`;
+  $("#copyLink").onclick = async () => {
+    const url = location.origin + location.pathname + "#" + code(r.id);
+    const text = `[${code(r.id)}] ${r.title}\n${url}`;
+    try{ await navigator.clipboard.writeText(text); toast("제목과 링크를 복사했습니다"); }
+    catch(e){
+      const ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select();
+      let ok=false; try{ ok=document.execCommand("copy"); }catch(_){}
+      ta.remove(); toast(ok ? "제목과 링크를 복사했습니다" : "복사하지 못했습니다. 주소창의 링크를 직접 복사해주세요");
+    }
+  };
   $("#editReq")?.addEventListener("click", () => showForm(r.category_id, {...r}, {id:r.id, key:keyFor("r", r.id)}));
   $(".thread").addEventListener("click", e => {
     const b=e.target.closest("[data-edit-reply]"); if(!b) return;
